@@ -1,4 +1,4 @@
-# networkx-to-lava-nc
+# Spiking Neural Network Simulator Backends
 
 [![Python 3.10][python_badge]](https://www.python.org/downloads/release/python-3106/)
 [![License: AGPL v3][agpl3_badge]](https://www.gnu.org/licenses/agpl-3.0)
