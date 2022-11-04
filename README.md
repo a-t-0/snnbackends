@@ -29,6 +29,7 @@ Here is a list of supported neuromorphic backends:
 |                                      |          |            |              |
 
 <!-- Un-wrapped URL's (Badges and Hyperlinks) -->
+
 [agpl3_badge]: https://img.shields.io/badge/License-AGPL_v3-blue.svg
 [algorithms]: https://github.com/a-t-0/snnalgos
 [black_badge]: https://img.shields.io/badge/code%20style-black-000000.svg
