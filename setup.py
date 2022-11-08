@@ -1,4 +1,4 @@
-"""Packaging logic for snnbackend."""
+"""Packaging logic for snnbackends."""
 from __future__ import annotations
 
 import os

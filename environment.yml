@@ -15,7 +15,7 @@
 # yes | sudo apt install graphviz
 
 # Conda configuration settings. (Specify which modules/packages are installed.)
-name: snnbackend
+name: snnbackends
 channels:
   - conda-forge
 dependencies:
