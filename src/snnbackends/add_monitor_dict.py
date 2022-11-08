@@ -1,6 +1,7 @@
 """Adds a monitor dict to a lava SNN."""
-from typeguard import typechecked
 from lava.proc.monitor.process import Monitor
+from typeguard import typechecked
+
 
 @typechecked
 def add_monitor_to_dict(

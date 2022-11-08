@@ -17,7 +17,7 @@ from snnalgorithms.sparse.MDSA.convert_networkx_to_lava import (
 )
 from typeguard import typechecked
 
-from snnbackends.verify_graph_is_snn import verify_networkx_snn_spec
+from ..verify_graph_is_snn import verify_networkx_snn_spec
 
 
 @typechecked
