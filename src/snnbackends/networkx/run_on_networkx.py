@@ -9,7 +9,7 @@ from typing import List
 import networkx as nx
 from typeguard import typechecked
 
-from ..verify_graph_is_snn import verify_networkx_snn_spec
+from snnbackends.verify_graph_is_snn import verify_networkx_snn_spec
 from .LIF_neuron import LIF_neuron
 
 # Import external libraries.
