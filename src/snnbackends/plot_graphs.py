@@ -40,10 +40,10 @@ def plot_circular_graph(
     nx.draw(G, npos, labels=the_labels, with_labels=True)
     if test_scope.export:
 
-        create_target_dir_if_not_exists("Images/", "graphs")
+        create_target_dir_if_not_exists("latex/Images/", "graphs")
         plt.savefig(
-            f"Images/graphs/graph_{test_scope.seed}_size{len(G)}_p{density}"
-            + f"_p_recur{recurrent_edge_density}.png",
+            f"latex/Images/graphs/graph_{test_scope.seed}_size{len(G)}_"
+            + f"p{density}_p_recur{recurrent_edge_density}.png",
             dpi=200,
         )
     if test_scope.show:
@@ -53,7 +53,9 @@ def plot_circular_graph(
 
 
 @typechecked
-def plot_uncoordinated_graph(G: nx.DiGraph, show: bool = True) -> None:
+def plot_uncoordinated_graph(
+    G: nx.DiGraph | nx.Graph, filepath: str = None, show: bool = True
+) -> None:
     """Generates a circular plot of a (directed) graph.
 
     :param density: param G:
@@ -71,6 +73,12 @@ def plot_uncoordinated_graph(G: nx.DiGraph, show: bool = True) -> None:
         scale=1,
     )
     nx.draw(G, npos, with_labels=True)
+    if isinstance(filepath, str):
+        create_target_dir_if_not_exists("latex/Images/", "graphs")
+        plt.savefig(
+            filepath,
+            dpi=200,
+        )
     if show:
         plt.show()
     plt.clf()

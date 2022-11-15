@@ -4,6 +4,7 @@ First verifies the graph represents a connected and valid SNN, with all
 required neuron and synapse properties specified. Then loops through the
 network to simulate it, one neuron at a time.
 """
+import copy
 from typing import List
 
 import networkx as nx
@@ -77,7 +78,10 @@ def copy_old_neurons_into_new_neuron_element(G: nx.DiGraph, t: int) -> None:
     TODO: determine what to do with the synapses.
     """
     for node in G.nodes:
-        G.nodes[node]["nx_LIF"].append(G.nodes[node]["nx_LIF"][t])
+        # TODO: verify these have different object ids/are different elements.
+        G.nodes[node]["nx_LIF"].append(
+            copy.deepcopy(G.nodes[node]["nx_LIF"][t])
+        )
 
 
 @typechecked

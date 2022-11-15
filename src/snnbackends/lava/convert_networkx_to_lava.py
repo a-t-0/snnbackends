@@ -319,7 +319,6 @@ def create_weighted_synapse(weight_value: float) -> Dense:
     # weights = np.eye(size) * 1
     size = 1
     weights_init = np.eye(size) * weight_value
-    print(f"weights_init={weights_init}")
 
     weight_exp = 2
     num_weight_bits = 7
