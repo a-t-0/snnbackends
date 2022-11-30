@@ -1,5 +1,5 @@
 """File represents LIF neuron object."""
-from typing import Any, List, Union
+from typing import Any, List, Tuple, Union
 
 import networkx as nx
 import numpy as np
@@ -146,6 +146,7 @@ class LIF_neuron:
         du: Union[float, Du],
         dv: Union[float, Dv],
         vth: Union[float, Vth],
+        pos: Tuple[float, float] = None,  # TODO: remove optionality.
     ) -> None:
         # pylint: disable=R0913
         self.bias = Bias(bias)  # Amount of voltage added every timestep.
@@ -153,6 +154,7 @@ class LIF_neuron:
         self.dv = Dv(dv)  # Change in voltage over time.
         self.name: Union[str, int] = name  # Set the identifier of the neuron.
         self.vth = Vth(vth)  # Threshold Voltage of the neuron.
+        self.pos = pos
 
         # Initialise default values.
         self.v_reset: float = 0.0
