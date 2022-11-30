@@ -1,5 +1,5 @@
 """File represents LIF neuron object."""
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import networkx as nx
 import numpy as np
@@ -124,6 +124,52 @@ class Vth:
         return self.vth
 
 
+class Recurrent_synapse:
+    """Stores a recurrent synapse."""
+
+    # pylint: disable=R0903
+    @typechecked
+    def __init__(
+        self,
+        weight: int,
+        delay: int,
+        change_per_t: int,
+    ):
+        """Stores a recurrent synapse."""
+        self.weight: int = weight
+        if delay < 0:
+            raise Exception(f"Error, delay:{delay} must be 0 or larger.")
+        self.delay: int = delay
+        self.change_per_t: int = change_per_t
+
+
+class Identifier:
+    """Stores an identifier like y in: a node/neuron like:
+
+    degree_receiver_x_y_z.
+    """
+
+    # pylint: disable=R0903
+    @typechecked
+    def __init__(
+        self,
+        description: str,
+        position: int,
+        value: int,
+    ):
+        """Stores an identifier like y in: a node/neuron like:
+
+        degree_receiver_x_y_z.
+        """
+        self.description: str = description
+        if position < 0:
+            raise Exception(f"Error, position:{position} must be 0 or larger.")
+        self.position: int = position
+        if position < 0:
+            raise Exception(f"Error, value:{value} must be 0 or larger.")
+        self.value: int = value
+
+
 class LIF_neuron:
     """Creates a Leaky-Integrate-and-Fire neuron specification. Leaky-
     Integrate-and-Fire neural process with activation input and spike output
@@ -146,7 +192,13 @@ class LIF_neuron:
         du: Union[float, Du],
         dv: Union[float, Dv],
         vth: Union[float, Vth],
-        pos: Tuple[float, float] = None,  # TODO: remove optionality.
+        # TODO: remove optionality.
+        recurrent_synapses: Optional[List[Recurrent_synapse]] = None,
+        # TODO: remove optionality.
+        identifiers: Optional[List[Identifier]] = None,
+        # TODO: remove optionality.
+        # TODO: allow multi-dimensional networks.
+        pos: Optional[Tuple[float, float]] = None,
     ) -> None:
         # pylint: disable=R0913
         self.bias = Bias(bias)  # Amount of voltage added every timestep.
@@ -154,7 +206,18 @@ class LIF_neuron:
         self.dv = Dv(dv)  # Change in voltage over time.
         self.name: Union[str, int] = name  # Set the identifier of the neuron.
         self.vth = Vth(vth)  # Threshold Voltage of the neuron.
-        self.pos = pos
+        self.pos: Optional[Tuple[float, float]] = pos
+        self.identifiers: Optional[List[Identifier]] = self.verify_identifiers(
+            identifiers
+        )
+        print(f"identifiers={identifiers}")
+        print(f"self.identifiers={self.identifiers}")
+        self.full_name: str = self.get_full_neuron_name(
+            self.name, self.identifiers
+        )
+        self.recurrent_synapses: Optional[
+            List[Recurrent_synapse]
+        ] = recurrent_synapses
 
         # Initialise default values.
         self.v_reset: float = 0.0
@@ -164,6 +227,40 @@ class LIF_neuron:
         self.spikes = False
         self.a_in: float = 0.0
         self.a_in_next: float = 0.0
+
+    def verify_identifiers(
+        self,
+        identifiers: Optional[List[Identifier]],
+    ) -> Optional[List[Identifier]]:
+        """Stores the identifiers x,y,z like: degree_receiver_x_y_z for the
+        nodes/neurons."""
+        if identifiers is None:
+            return identifiers
+
+        # Verify the subscripts/indices/values of the identifiers are complete.
+        identifier_positions = list(map(lambda x: x.position, identifiers))
+        for i, _ in enumerate(identifiers):
+            if i not in identifier_positions:
+                raise Exception(
+                    "Error, the index positions are not "
+                    + f"consecutive:{identifier_positions}"
+                )
+        return identifiers
+
+    @typechecked
+    def get_full_neuron_name(
+        self, base_name: str, identifiers: Union[List[Identifier], None]
+    ) -> str:
+        """Merges the name like:degree_receiver with its subscripts/indices, to
+        get the full node name."""
+        if identifiers is None:
+            return base_name
+        if len(identifiers) <= 0:
+            raise Exception("Error, expected identifiers.")
+        subscripts = ["_"] * len(identifiers)
+        for identifier in identifiers:
+            subscripts[identifier.position] = f"_{identifier.value}"
+        return f"{base_name}{''.join(subscripts)}"
 
     @typechecked
     def simulate_neuron_one_timestep(self, a_in: float) -> bool:
