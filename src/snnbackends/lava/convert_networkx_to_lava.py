@@ -226,7 +226,7 @@ def create_neuron_from_node(
 
     # Add recurrent synapse if it exists.
     add_recurrent_edge(G, nodename, neuron)
-    # neuron = create_recurrent_synapse(neuron, -2)
+    # neuron = create_Synapse(neuron, -2)
 
     neurons.append(neuron)
     converted_nodes.append(nodename)
@@ -245,7 +245,7 @@ def add_recurrent_edge(G: DiGraph, nodename: int, neuron: LIF) -> None:
 
         # Compute synaptic weight.
         weight = G.edges[(nodename, nodename)]["weight"]
-        create_recurrent_synapse(neuron, weight)
+        create_Synapse(neuron, weight)
 
 
 @typechecked
@@ -290,7 +290,7 @@ def get_neuron_properties_old(
 
 
 @typechecked
-def create_recurrent_synapse(neuron: LIF, weight: float) -> LIF:
+def create_Synapse(neuron: LIF, weight: float) -> LIF:
     """Creates a synapse from a neuron back into itself.
 
     :param neuron: Lava neuron object.

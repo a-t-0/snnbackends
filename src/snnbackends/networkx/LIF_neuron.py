@@ -124,7 +124,7 @@ class Vth:
         return self.vth
 
 
-class Recurrent_synapse:
+class Synapse:
     """Stores a recurrent synapse."""
 
     # pylint: disable=R0903
@@ -193,8 +193,6 @@ class LIF_neuron:
         dv: Union[float, Dv],
         vth: Union[float, Vth],
         # TODO: remove optionality.
-        recurrent_synapses: Optional[List[Recurrent_synapse]] = None,
-        # TODO: remove optionality.
         identifiers: Optional[List[Identifier]] = None,
         # TODO: remove optionality.
         # TODO: allow multi-dimensional networks.
@@ -213,9 +211,6 @@ class LIF_neuron:
         self.full_name: str = self.get_full_neuron_name(
             self.name, self.identifiers
         )
-        self.recurrent_synapses: Optional[
-            List[Recurrent_synapse]
-        ] = recurrent_synapses
 
         # Initialise default values.
         self.v_reset: float = 0.0
