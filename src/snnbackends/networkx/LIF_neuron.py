@@ -210,8 +210,6 @@ class LIF_neuron:
         self.identifiers: Optional[List[Identifier]] = self.verify_identifiers(
             identifiers
         )
-        print(f"identifiers={identifiers}")
-        print(f"self.identifiers={self.identifiers}")
         self.full_name: str = self.get_full_neuron_name(
             self.name, self.identifiers
         )
