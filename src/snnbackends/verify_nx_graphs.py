@@ -19,7 +19,6 @@ def verify_results_nx_graphs_contain_expected_stages(
 
     Throws an error otherwise.
     """
-    print(f"results_nx_graphs.keys={results_nx_graphs.keys()}")
     for graph_name, nx_graph in results_nx_graphs["graphs_dict"].items():
         expected_stages = get_expected_stages(
             results_nx_graphs["run_config"]["export_images"],
