@@ -8,27 +8,7 @@ import networkx as nx
 from networkx.classes.digraph import DiGraph
 from typeguard import typechecked
 
-from snnbackends.networkx.LIF_neuron import LIF_neuron, Synapse
-
-
-@typechecked
-def verify_nx_neuron_properties_are_specified(
-    node: LIF_neuron, t: int
-) -> None:
-    """
-
-    :param node: nx.DiGraph.nodes:
-    :param node: nx.DiGraph.nodes:
-
-    """
-    if not isinstance(node.bias.get(), float):
-        raise Exception("Bias is not a float.")
-    if not isinstance(node["nx_lif"][t].du.get(), float):
-        raise Exception("du is not a float.")
-    if not isinstance(node["nx_lif"][t].dv.get(), float):
-        raise Exception("dv is not a float.")
-    if not isinstance(node["nx_lif"][t].vth.get(), float):
-        raise Exception("vth is not a float.")
+from snnbackends.networkx.LIF_neuron import Synapse
 
 
 @typechecked
