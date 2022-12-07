@@ -399,7 +399,7 @@ def print_neuron_properties_per_graph(
     for node in G.nodes:
         # TODO: also convert lava LIF function of t
         lava_neurons.append(G.nodes[node]["lava_LIF"])
-        nx_neurons.append(G.nodes[node]["nx_LIF"][t])
+        nx_neurons.append(G.nodes[node]["nx_lif"][t])
 
     print("Lava neuron values:")
     print_neuron_properties(

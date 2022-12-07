@@ -260,11 +260,11 @@ def get_neuron_properties(
      the networkx graph.
     """
     if int(nodename) in G.nodes:
-        if "nx_LIF" in G.nodes[int(nodename)]:
-            bias = G.nodes[int(nodename)]["nx_LIF"][t].bias.get()
-            du = G.nodes[int(nodename)]["nx_LIF"][t].du.get()
-            dv = G.nodes[int(nodename)]["nx_LIF"][t].dv.get()
-            vth = G.nodes[int(nodename)]["nx_LIF"][t].vth.get()
+        if "nx_lif" in G.nodes[int(nodename)]:
+            bias = G.nodes[int(nodename)]["nx_lif"][t].bias.get()
+            du = G.nodes[int(nodename)]["nx_lif"][t].du.get()
+            dv = G.nodes[int(nodename)]["nx_lif"][t].dv.get()
+            vth = G.nodes[int(nodename)]["nx_lif"][t].vth.get()
             return bias, du, dv, vth
         raise Exception(f"node does not have nx_LIF:{G.nodes[int(nodename)]}.")
     raise Exception(f"nodename:{nodename} not in G.nodes:{G.nodes}.")
