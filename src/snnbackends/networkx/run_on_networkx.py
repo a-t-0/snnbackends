@@ -4,6 +4,7 @@ First verifies the graph represents a connected and valid SNN, with all
 required neuron and synapse properties specified. Then loops through the
 network to simulate it, one neuron at a time.
 """
+import copy
 from typing import List
 
 import networkx as nx
@@ -51,7 +52,7 @@ def create_neuron_for_next_timestep(snn_graph: nx.DiGraph, t: int) -> None:
     for node_names in snn_graph.nodes:
         # Add a new element to neuron list.
         snn_graph.nodes[node_names]["nx_lif"].append(
-            snn_graph.nodes[node_names]["nx_lif"][-1]
+            copy.deepcopy(snn_graph.nodes[node_names]["nx_lif"][-1])
         )
     for node_names in snn_graph.nodes:
         if len(snn_graph.nodes[node_names]["nx_lif"]) < t + 1:
