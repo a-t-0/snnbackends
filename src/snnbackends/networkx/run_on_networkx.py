@@ -34,11 +34,13 @@ def run_snn_on_networkx(snn_graph: nx.DiGraph, sim_duration: int) -> None:
 
         verify_networkx_snn_spec(snn_graph, t + 1, backend="nx")
         run_simulation_with_networkx_for_1_timestep(snn_graph, t + 1)
-        if snn_graph.nodes["terminator"]["nx_lif"].spikes:
+        if snn_graph.nodes["terminator_node"]["nx_lif"][t].spikes:
+            actual_duration = t + 1
+            snn_graph.graph["sim_duration"] = actual_duration
             break
 
     # Verify the network dimensions. (Ensure sufficient nodes are added.)
-    verify_networkx_graph_dimensions(snn_graph, sim_duration)
+    verify_networkx_graph_dimensions(snn_graph, actual_duration)
 
 
 @typechecked
