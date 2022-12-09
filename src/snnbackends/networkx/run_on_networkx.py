@@ -4,6 +4,7 @@ First verifies the graph represents a connected and valid SNN, with all
 required neuron and synapse properties specified. Then loops through the
 network to simulate it, one neuron at a time.
 """
+
 import copy
 from typing import List
 
@@ -34,6 +35,7 @@ def run_snn_on_networkx(snn_graph: nx.DiGraph, sim_duration: int) -> None:
 
         verify_networkx_snn_spec(snn_graph, t + 1, backend="nx")
         run_simulation_with_networkx_for_1_timestep(snn_graph, t + 1)
+
         if snn_graph.nodes["terminator_node"]["nx_lif"][t].spikes:
             actual_duration = t + 1
             snn_graph.graph["sim_duration"] = actual_duration
