@@ -28,6 +28,7 @@ def verify_networkx_snn_spec(
     for nodename in snn_graph.nodes:
         # TODO: expect list of neurons, instead of single neuron.
         if backend in ["nx", "generic"]:
+            print(f"nodename={nodename}")
             lif_neurons = snn_graph.nodes[nodename]["nx_lif"]
             if not isinstance(lif_neurons[t], LIF_neuron):
                 raise ValueError(

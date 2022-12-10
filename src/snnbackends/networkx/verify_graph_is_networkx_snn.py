@@ -64,11 +64,12 @@ def has_valid_synapse(snn_graph: DiGraph, edge: Tuple[str, str]) -> bool:
     :param edge:
 
     """
-
-    if list(snn_graph.edges[edge].keys()) != ["synapse"]:
-        return False
-    if not isinstance(snn_graph.edges[edge]["synapse"], Synapse):
-        return False
+    for key in snn_graph.edges[edge].keys():
+        if key not in ["synapse", "is_redundant"]:
+            return False
+        if key == "synapse":
+            if not isinstance(snn_graph.edges[edge]["synapse"], Synapse):
+                return False
     return True
 
 
