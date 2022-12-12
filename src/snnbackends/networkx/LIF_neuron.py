@@ -123,6 +123,14 @@ class Vth:
         """Returns the vth (threshold voltage) value as a float."""
         return self.vth
 
+    @typechecked
+    def set(self, vth: float) -> None:
+        """Sets the dv value as a float.
+
+        TODO: disable this option, and apply radiation differently.
+        """
+        self.vth = vth
+
 
 class Synapse:
     """Stores a recurrent synapse."""

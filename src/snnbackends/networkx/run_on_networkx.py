@@ -6,9 +6,10 @@ network to simulate it, one neuron at a time.
 """
 
 import copy
-from typing import List
+from typing import Dict, List
 
 import networkx as nx
+from snnalgorithms.sparse.MDSA.is_done import mdsa_is_done
 from typeguard import typechecked
 
 from ..verify_graph_is_snn import verify_networkx_snn_spec
@@ -20,13 +21,16 @@ from .LIF_neuron import LIF_neuron
 
 
 @typechecked
-def run_snn_on_networkx(snn_graph: nx.DiGraph, sim_duration: int) -> None:
+def run_snn_on_networkx(
+    run_config: Dict, snn_graph: nx.DiGraph, sim_duration: int
+) -> None:
     """Runs the simulation for t timesteps using networkx, not lava.
 
     :param G: The original graph on which the MDSA algorithm is ran.
     :param t: int:
     """
     print(f"sim_duration={sim_duration}")
+    actual_duration: int = -1
     for t in range(sim_duration):
         # Verify the neurons of the previous timestep are valid.
         verify_networkx_snn_spec(snn_graph, t, backend="nx")
@@ -36,11 +40,16 @@ def run_snn_on_networkx(snn_graph: nx.DiGraph, sim_duration: int) -> None:
 
         verify_networkx_snn_spec(snn_graph, t + 1, backend="nx")
         run_simulation_with_networkx_for_1_timestep(snn_graph, t + 1)
-        if snn_graph.nodes["terminator_node"]["nx_lif"][t].spikes:
+        if mdsa_is_done(run_config, snn_graph, t):
             actual_duration = t + 1
             snn_graph.graph["sim_duration"] = actual_duration
             break
 
+    # TODO: delete
+    if actual_duration < 0:
+        actual_duration = sim_duration
+        # raise Exception(
+        # "Error, was unable to determine why algo did not complete.")
     # Verify the network dimensions. (Ensure sufficient nodes are added.)
     verify_networkx_graph_dimensions(snn_graph, actual_duration)
 
