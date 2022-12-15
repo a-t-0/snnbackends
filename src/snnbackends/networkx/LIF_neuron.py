@@ -1,5 +1,5 @@
 """File represents LIF neuron object."""
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import networkx as nx
 import numpy as np
@@ -205,6 +205,7 @@ class LIF_neuron:
         # TODO: remove optionality.
         # TODO: allow multi-dimensional networks.
         pos: Optional[Tuple[float, float]] = None,
+        custom_props: Optional[Dict[str, Any]] = None,
     ) -> None:
         # pylint: disable=R0913
         self.bias = Bias(bias)  # Amount of voltage added every timestep.
@@ -228,6 +229,9 @@ class LIF_neuron:
         self.spikes = False
         self.a_in: float = 0.0
         self.a_in_next: float = 0.0
+
+        # Store custom properties
+        self.custom_props = custom_props
 
     def verify_identifiers(
         self,
