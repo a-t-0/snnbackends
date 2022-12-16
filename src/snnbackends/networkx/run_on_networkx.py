@@ -29,7 +29,6 @@ def run_snn_on_networkx(
     :param G: The original graph on which the MDSA algorithm is ran.
     :param t: int:
     """
-    print(f"sim_duration={sim_duration}")
     actual_duration: int = -1
     for t in range(sim_duration):
         # Verify the neurons of the previous timestep are valid.
