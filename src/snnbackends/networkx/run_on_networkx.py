@@ -4,12 +4,12 @@ First verifies the graph represents a connected and valid SNN, with all
 required neuron and synapse properties specified. Then loops through the
 network to simulate it, one neuron at a time.
 """
-
 import copy
-from typing import Dict, List
+from typing import List
 
 import networkx as nx
 from snnalgorithms.sparse.MDSA.is_done import mdsa_is_done
+from snncompare.exp_setts.run_config.Run_config import Run_config
 from typeguard import typechecked
 
 from ..verify_graph_is_snn import verify_networkx_snn_spec
@@ -22,7 +22,9 @@ from .LIF_neuron import LIF_neuron
 
 @typechecked
 def run_snn_on_networkx(
-    run_config: Dict, snn_graph: nx.DiGraph, sim_duration: int
+    run_config: Run_config,
+    snn_graph: nx.DiGraph,
+    sim_duration: int,
 ) -> None:
     """Runs the simulation for t timesteps using networkx, not lava.
 

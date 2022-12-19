@@ -2,6 +2,7 @@
 from typing import List
 
 import networkx as nx
+from snncompare.exp_setts.run_config.Run_config import Run_config
 from snncompare.export_results.verify_stage_1_graphs import (
     get_expected_stage_1_graph_names,
 )
@@ -21,7 +22,7 @@ def verify_results_nx_graphs_contain_expected_stages(
     """
     for graph_name, nx_graph in results_nx_graphs["graphs_dict"].items():
         expected_stages = get_expected_stages(
-            results_nx_graphs["run_config"]["export_images"],
+            results_nx_graphs["run_config"].export_images,
             stage_index,
             to_run,
         )
@@ -33,7 +34,8 @@ def verify_results_nx_graphs_contain_expected_stages(
 # pylint: disable=R0912
 @typechecked
 def verify_results_nx_graphs(
-    results_nx_graphs: dict, run_config: dict
+    results_nx_graphs: dict,
+    run_config: Run_config,
 ) -> None:
     """Verifies the results that are loaded from json file are of the expected
     format.

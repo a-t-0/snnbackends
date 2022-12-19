@@ -205,7 +205,7 @@ class LIF_neuron:
         # TODO: remove optionality.
         # TODO: allow multi-dimensional networks.
         pos: Optional[Tuple[float, float]] = None,
-        custom_props: Optional[Dict[str, Any]] = None,
+        custom_props: Optional[Dict] = None,
     ) -> None:
         # pylint: disable=R0913
         self.bias = Bias(bias)  # Amount of voltage added every timestep.
@@ -323,10 +323,10 @@ class LIF_neuron:
 # pylint: disable=R0912
 @typechecked
 def print_neuron_properties(
-    neurons: List[Any],
+    neurons: List[LIF_neuron],
     static: bool,
     ids: nx.classes.reportviews.NodeView = None,
-    spikes: List[Any] = None,
+    spikes: List[bool] = None,
 ) -> None:
     """Prints the neuron properties in human readable format.
 
