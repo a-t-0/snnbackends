@@ -15,10 +15,6 @@ from typeguard import typechecked
 from ..verify_graph_is_snn import verify_networkx_snn_spec
 from .LIF_neuron import LIF_neuron
 
-# TODO: remove if not needed.
-# Initialise the nodes at time t=0 (with a_in=0).
-# initialise_a_in_is_zero_at_t_is_1(snn_graph, t)
-
 
 @typechecked
 def run_snn_on_networkx(
@@ -181,15 +177,3 @@ def reset_a_in_next_for_all_neurons(snn_graph: nx.DiGraph, t: int) -> None:
     """
     for node_names in snn_graph.nodes:
         snn_graph.nodes[node_names]["nx_lif"][t].a_in_next = 0
-
-
-@typechecked
-def initialise_a_in_is_zero_at_t_is_1(snn_graph: nx.DiGraph, t: int) -> None:
-    """
-
-    :param G: The original graph on which the MDSA algorithm is ran.
-
-    """
-    for node in snn_graph.nodes:
-        snn_graph.nodes[node]["nx_lif"][t].a_in = 0
-        # snn_graph.nodes[node]["a_in"] = 0
