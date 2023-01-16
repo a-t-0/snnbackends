@@ -1,5 +1,5 @@
 """Methods used to verify the graphs."""
-from typing import List
+from typing import Dict, List
 
 import networkx as nx
 from snncompare.exp_setts.run_config.Run_config import Run_config
@@ -13,7 +13,7 @@ from typeguard import typechecked
 
 @typechecked
 def verify_results_nx_graphs_contain_expected_stages(
-    results_nx_graphs: dict, stage_index: int, to_run: dict
+    results_nx_graphs: Dict, stage_index: int, to_run: Dict
 ) -> None:
     """Verifies that the nx_graphs dict contains the expected completed stages
     in each nxgraph.graph dict.
@@ -34,7 +34,7 @@ def verify_results_nx_graphs_contain_expected_stages(
 # pylint: disable=R0912
 @typechecked
 def verify_results_nx_graphs(
-    results_nx_graphs: dict,
+    results_nx_graphs: Dict,
     run_config: Run_config,
 ) -> None:
     """Verifies the results that are loaded from json file are of the expected

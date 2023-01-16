@@ -6,6 +6,8 @@ incoming networkx object to an SNN network that can be ran by Lava, and
 retrieves a first/single neuron. The simulation is than ran for t
 timesteps on a Loihi emulation.
 """
+from typing import Dict
+
 import networkx as nx
 from lava.magma.core.run_conditions import RunSteps
 from lava.magma.core.run_configs import Loihi1SimCfg
@@ -94,11 +96,11 @@ def add_lava_neurons_to_networkx_graph(G: nx.Graph, t: int) -> None:
 
 
 @typechecked
-def append_neurons_to_networkx_graph(G: nx.Graph, neuron_dict: dict) -> None:
+def append_neurons_to_networkx_graph(G: nx.Graph, neuron_dict: Dict) -> None:
     """Appends lava neuron objects as keys to the networkx graph nodes.
 
     :param G: The original graph on which the MDSA algorithm is ran. nx.Graph:
-    :param neuron_dict: dict:
+    :param neuron_dict: Dict:
     """
     for node in G.nodes:
         neuron = list(neuron_dict.keys())[
