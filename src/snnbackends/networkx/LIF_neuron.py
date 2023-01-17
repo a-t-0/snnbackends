@@ -421,3 +421,26 @@ def print_neuron_properties_per_graph(
     print_neuron_properties(
         nx_neurons, static=static, ids=G.nodes, spikes=None
     )
+
+
+@typechecked
+def manually_create_lif_neuron(neuron_dict: Dict) -> LIF_neuron:
+    """Manually restores a neuron in a certain timestep based on its dict."""
+    minimal_lif = LIF_neuron(
+        name=neuron_dict["name"],
+        bias=neuron_dict["bias"]["bias"],
+        du=neuron_dict["du"]["du"],
+        dv=neuron_dict["dv"]["dv"],
+        vth=neuron_dict["vth"]["vth"],
+    )
+    for key, val in neuron_dict.items():
+        if key not in ["name", "bias", "du", "dv", "vth"]:
+            if key == "identifier":
+                setattr(minimal_lif, key, Identifier(**val["identifier"]))
+            elif key == "u":
+                setattr(minimal_lif, key, U(val["u"]))
+            elif key == "v":
+                setattr(minimal_lif, key, V(val["v"]))
+            else:
+                setattr(minimal_lif, key, val)
+    return minimal_lif
