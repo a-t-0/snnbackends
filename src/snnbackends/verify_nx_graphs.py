@@ -22,9 +22,13 @@ def verify_results_nx_graphs_contain_expected_stages(
     """
     for graph_name, nx_graph in results_nx_graphs["graphs_dict"].items():
         expected_stages = get_expected_stages(
-            results_nx_graphs["run_config"].export_images,
-            stage_index,
-            to_run,
+            export_images=results_nx_graphs["run_config"].export_images,
+            overwrite_visualisation=results_nx_graphs[
+                "run_config"
+            ].overwrite_visualisation,
+            show_snns=results_nx_graphs["run_config"].show_snns,
+            stage_index=stage_index,
+            to_run=to_run,
         )
         verify_nx_graph_contains_correct_stages(
             graph_name, nx_graph, expected_stages
