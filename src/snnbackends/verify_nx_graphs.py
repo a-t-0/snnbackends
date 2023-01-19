@@ -55,9 +55,9 @@ def verify_results_nx_graphs(
     """
     stage_1_graph_names = get_expected_stage_1_graph_names(run_config)
     # Verify the 3 dicts are in the result dict.
-    if "experiment_config" not in results_nx_graphs.keys():
+    if "exp_config" not in results_nx_graphs.keys():
         raise Exception(
-            "Error, experiment_config not in run_result keys:"
+            "Error, exp_config not in run_result keys:"
             + f"{results_nx_graphs}"
         )
 
