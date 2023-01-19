@@ -2,7 +2,7 @@
 from typing import Dict, List
 
 import networkx as nx
-from snncompare.exp_setts.run_config.Run_config import Run_config
+from snncompare.exp_config.run_config.Run_config import Run_config
 from snncompare.export_results.verify_stage_1_graphs import (
     get_expected_stage_1_graph_names,
 )
