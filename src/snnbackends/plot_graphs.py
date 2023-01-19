@@ -52,7 +52,9 @@ def plot_circular_graph(
 
 @typechecked
 def plot_uncoordinated_graph(
-    G: nx.DiGraph | nx.Graph, filepath: str = None, show: bool = True
+    G: nx.DiGraph | nx.Graph,
+    filepath: str | None = None,
+    show: bool | None = True,
 ) -> None:
     """Generates a circular plot of a (directed) graph.
 

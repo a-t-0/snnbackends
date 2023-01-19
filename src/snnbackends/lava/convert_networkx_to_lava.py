@@ -97,7 +97,7 @@ def convert_networkx_to_lava_snn(
     for neighbour in set(nx.all_neighbors(G, lhs_nodename)):
         if neighbour not in visited_nodes:
 
-            # Convert the neigbhour neurons of the lhs_nodename into a Lava
+            # Convert the neighbour neurons of the lhs_nodename into a Lava
             # neuron.
             if not node_is_converted(converted_nodes, neighbour):
                 (

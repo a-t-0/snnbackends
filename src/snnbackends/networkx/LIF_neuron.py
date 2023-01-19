@@ -326,7 +326,7 @@ def print_neuron_properties(
     neurons: List[LIF_neuron],
     static: bool,
     ids: nx.classes.reportviews.NodeView = None,
-    spikes: List[bool] = None,
+    spikes: Optional[List[bool]] = None,
 ) -> None:
     """Prints the neuron properties in human readable format.
 
