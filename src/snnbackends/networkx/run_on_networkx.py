@@ -40,6 +40,7 @@ def run_snn_on_networkx(
         if mdsa_is_done(run_config, snn_graph, t):
             actual_duration = t + 1
             snn_graph.graph["sim_duration"] = actual_duration
+            snn_graph.graph["actual_duration"] = actual_duration
             break
 
     # TODO: delete
