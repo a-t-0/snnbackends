@@ -13,7 +13,7 @@ from typeguard import typechecked
 
 @typechecked
 def verify_results_nx_graphs_contain_expected_stages(
-    results_nx_graphs: Dict, stage_index: int, to_run: Dict
+    results_nx_graphs: Dict, stage_index: int
 ) -> None:
     """Verifies that the nx_graphs dict contains the expected completed stages
     in each nxgraph.graph dict.
@@ -22,12 +22,7 @@ def verify_results_nx_graphs_contain_expected_stages(
     """
     for graph_name, nx_graph in results_nx_graphs["graphs_dict"].items():
         expected_stages = get_expected_stages(
-            export_images=results_nx_graphs["run_config"].export_images,
-            overwrite_images_only=results_nx_graphs[
-                "run_config"
-            ].overwrite_images_only,
             stage_index=stage_index,
-            to_run=to_run,
         )
         verify_nx_graph_contains_correct_stages(
             graph_name, nx_graph, expected_stages
