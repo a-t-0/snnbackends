@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 @typechecked
 def plot_circular_graph(
+    *,
     density: float,
     G: nx.DiGraph,
     recurrent_edge_density: int | float,
@@ -29,7 +30,7 @@ def plot_circular_graph(
     :param test_scope:
     """
     # the_labels = get_alipour_labels(G, configuration=configuration)
-    the_labels = get_labels(G, "du")
+    the_labels = get_labels(G=G, configuration="du")
     # nx.draw_networkx_labels(G, pos=None, labels=the_labels)
     npos = nx.circular_layout(
         G,
@@ -38,7 +39,9 @@ def plot_circular_graph(
     nx.draw(G, npos, labels=the_labels, with_labels=True)
     if test_scope.export:
 
-        create_target_dir_if_not_exists("latex/Images/", "graphs")
+        create_target_dir_if_not_exists(
+            path="latex/Images/", new_dir_name="graphs"
+        )
         plt.savefig(
             f"latex/Images/graphs/graph_{test_scope.seed}_size{len(G)}_"
             + f"p{density}_p_recur{recurrent_edge_density}.png",
@@ -52,6 +55,7 @@ def plot_circular_graph(
 
 @typechecked
 def plot_uncoordinated_graph(
+    *,
     G: nx.DiGraph | nx.Graph,
     filepath: str | None = None,
     show: bool | None = True,
@@ -74,7 +78,9 @@ def plot_uncoordinated_graph(
     )
     nx.draw(G, npos, with_labels=True)
     if isinstance(filepath, str):
-        create_target_dir_if_not_exists("latex/Images/", "graphs")
+        create_target_dir_if_not_exists(
+            path="latex/Images/", new_dir_name="graphs"
+        )
         plt.savefig(
             filepath,
             dpi=200,
@@ -86,20 +92,20 @@ def plot_uncoordinated_graph(
 
 
 @typechecked
-def create_target_dir_if_not_exists(path: str, new_dir_name: str) -> None:
+def create_target_dir_if_not_exists(*, path: str, new_dir_name: str) -> None:
     """Creates an output dir for graph plots.
 
     :param path: param new_dir_name:
     :param new_dir_name:
     """
 
-    create_root_dir_if_not_exists(path)
+    create_root_dir_if_not_exists(root_dir_name=path)
     if not os.path.exists(f"{path}/{new_dir_name}"):
         os.makedirs(f"{path}/{new_dir_name}")
 
 
 @typechecked
-def create_root_dir_if_not_exists(root_dir_name: str) -> None:
+def create_root_dir_if_not_exists(*, root_dir_name: str) -> None:
     """
 
     :param root_dir_name:
@@ -112,7 +118,7 @@ def create_root_dir_if_not_exists(root_dir_name: str) -> None:
 
 
 @typechecked
-def get_labels(G: nx.DiGraph, configuration: str) -> dict[int, str]:
+def get_labels(*, G: nx.DiGraph, configuration: str) -> dict[int, str]:
     """Returns the labels for the plot nodes.
 
     :param G: The original graph on which the MDSA algorithm is ran.

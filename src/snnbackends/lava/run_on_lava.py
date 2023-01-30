@@ -21,26 +21,30 @@ from .convert_networkx_to_lava import initialise_networkx_to_snn_conversion
 
 
 @typechecked
-def simulate_snn_on_lava(G: nx.Graph, starter_nodename: int, t: int) -> None:
+def simulate_snn_on_lava(
+    *, G: nx.Graph, starter_node_name: int, t: int
+) -> None:
     """
 
     :param G: The original graph on which the MDSA algorithm is ran. nx.Graph:
     :param t: int:
     :param G: The original graph on which the MDSA algorithm is ran. nx.Graph:
-    :param starter_nodename: int:
+    :param starter_node_name: int:
     :param t: int:
 
     """
     # Verify the graph represents a connected and valid SNN, with all required
     # neuron and synapse properties specified.
-    verify_networkx_snn_spec(G, t, backend="lava")
+    verify_networkx_snn_spec(snn_graph=G, t=t, backend="lava")
 
     # The simulation is ran for t timesteps on a Loihi emulation.
-    run_simulation_on_lava(t, G.nodes[starter_nodename]["lava_LIF"])
+    run_simulation_on_lava(
+        t=t, starter_neuron=G.nodes[starter_node_name]["lava_LIF"]
+    )
 
 
 @typechecked
-def run_simulation_on_lava(t: int, starter_neuron: LIF) -> None:
+def run_simulation_on_lava(*, t: int, starter_neuron: LIF) -> None:
     """
 
     :param t: int:
@@ -54,14 +58,14 @@ def run_simulation_on_lava(t: int, starter_neuron: LIF) -> None:
 
 
 @typechecked
-def add_lava_neurons_to_networkx_graph(G: nx.Graph, t: int) -> None:
+def add_lava_neurons_to_networkx_graph(*, G: nx.Graph, t: int) -> None:
     """Generates a lava SNN and adds the neurons to the networkx Graph nodes.
 
     :param G: The original graph on which the MDSA algorithm is ran. nx.Graph:
     """
     # Verify the graph represents a connected and valid SNN, with all required
     # neuron and synapse properties specified.
-    verify_networkx_snn_spec(G, t, backend="generic")
+    verify_networkx_snn_spec(snn_graph=G, t=t, backend="generic")
 
     # Convert networkx graph to an SNN network that can be ran by Lava.
     # starter_neuron = convert_networkx_graph_to_lava_snn(G)
@@ -74,7 +78,7 @@ def add_lava_neurons_to_networkx_graph(G: nx.Graph, t: int) -> None:
         neurons,
         _,
         neuron_dict,
-    ) = initialise_networkx_to_snn_conversion(G)
+    ) = initialise_networkx_to_snn_conversion(G=G)
 
     # Assert all nodes have been converted.
     if not len(converted_nodes) == len(G) and not len(neurons) == len(G):
@@ -89,14 +93,16 @@ def add_lava_neurons_to_networkx_graph(G: nx.Graph, t: int) -> None:
         )
 
     # Append neurons to networkx graph.
-    append_neurons_to_networkx_graph(G, neuron_dict)
+    append_neurons_to_networkx_graph(G=G, neuron_dict=neuron_dict)
 
     # TODO: Verify all lava neurons are appended to networkx graph.
-    verify_networkx_snn_spec(G, t, backend="lava")
+    verify_networkx_snn_spec(snn_graph=G, t=t, backend="lava")
 
 
 @typechecked
-def append_neurons_to_networkx_graph(G: nx.Graph, neuron_dict: Dict) -> None:
+def append_neurons_to_networkx_graph(
+    *, G: nx.Graph, neuron_dict: Dict
+) -> None:
     """Appends lava neuron objects as keys to the networkx graph nodes.
 
     :param G: The original graph on which the MDSA algorithm is ran. nx.Graph:

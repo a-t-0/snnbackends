@@ -13,7 +13,7 @@ from typeguard import typechecked
 
 @typechecked
 def verify_results_nx_graphs_contain_expected_stages(
-    results_nx_graphs: Dict, stage_index: int
+    *, results_nx_graphs: Dict, stage_index: int
 ) -> None:
     """Verifies that the nx_graphs dict contains the expected completed stages
     in each nxgraph.graph dict.
@@ -25,13 +25,16 @@ def verify_results_nx_graphs_contain_expected_stages(
             stage_index=stage_index,
         )
         verify_nx_graph_contains_correct_stages(
-            graph_name, nx_graph, expected_stages
+            graph_name=graph_name,
+            nx_graph=nx_graph,
+            expected_stages=expected_stages,
         )
 
 
 # pylint: disable=R0912
 @typechecked
 def verify_results_nx_graphs(
+    *,
     results_nx_graphs: Dict,
     run_config: Run_config,
 ) -> None:
@@ -47,7 +50,9 @@ def verify_results_nx_graphs(
     nx.DiGraphs respectively. # TODO: break this check into separate
     functions.
     """
-    stage_1_graph_names = get_expected_stage_1_graph_names(run_config)
+    stage_1_graph_names = get_expected_stage_1_graph_names(
+        run_config=run_config
+    )
     # Verify the 3 dicts are in the result dict.
     if "exp_config" not in results_nx_graphs.keys():
         raise Exception(
@@ -101,12 +106,14 @@ def verify_results_nx_graphs(
                     # Verify each graph has the right completed stages
                     # attribute.
                     verify_completed_stages_list(
-                        nx_graph_frame.graph["completed_stages"]
+                        completed_stages=nx_graph_frame.graph[
+                            "completed_stages"
+                        ]
                     )
             elif isinstance(nx_graph, nx.DiGraph):
                 # Verify each graph has the right completed stages attribute.
                 verify_completed_stages_list(
-                    nx_graph.graph["completed_stages"]
+                    completed_stages=nx_graph.graph["completed_stages"]
                 )
             elif not isinstance(nx_graph, nx.DiGraph):
                 raise ValueError(
@@ -118,7 +125,7 @@ def verify_results_nx_graphs(
 
 @typechecked
 def verify_nx_graph_contains_correct_stages(
-    graph_name: str, nx_graph: nx.Graph, expected_stages: List[int]
+    *, graph_name: str, nx_graph: nx.Graph, expected_stages: List[int]
 ) -> None:
     """Verifies the networkx graph object contains the correct completed
     stages."""
