@@ -427,8 +427,11 @@ def print_neuron_properties_per_graph(
 
 
 @typechecked
-def manually_create_lif_neuron(*, neuron_dict: Dict) -> LIF_neuron:
-    """Manually restores a neuron in a certain timestep based on its dict."""
+def manually_create_lif_neuron(neuron_dict: Dict) -> LIF_neuron:
+    """Manually restores a neuron in a certain timestep based on its dict.
+
+    TODO: require explicit args again (with map).
+    """
     minimal_lif = LIF_neuron(
         name=neuron_dict["name"],
         bias=neuron_dict["bias"]["bias"],
