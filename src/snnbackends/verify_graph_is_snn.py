@@ -2,6 +2,7 @@
 neuron and synapse properties specified."""
 # Import the networkx module.
 
+
 import networkx as nx
 from typeguard import typechecked
 
