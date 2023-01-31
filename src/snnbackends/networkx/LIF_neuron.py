@@ -323,6 +323,7 @@ class LIF_neuron:
 # pylint: disable=R0912
 @typechecked
 def print_neuron_properties(
+    *,
     neurons: List[LIF_neuron],
     static: bool,
     ids: nx.classes.reportviews.NodeView = None,
@@ -373,18 +374,20 @@ def print_neuron_properties(
         print("")
         for x in neurons:
             print(
-                f"u={str(round_if_array(x.u.get())) : <{spacing+3}}", end=" "
+                f"u={str(round_if_array(value=x.u.get())) : <{spacing+3}}",
+                end=" ",
             )
         print("")
         for x in neurons:
             print(
-                f"v={str(round_if_array(x.v.get())) : <{spacing+3}}", end=" "
+                f"v={str(round_if_array(value=x.v.get())) : <{spacing+3}}",
+                end=" ",
             )
     print("")
 
 
 @typechecked
-def round_if_array(value: Any) -> float:
+def round_if_array(*, value: Any) -> float:
     """Rounds an incoming value up to 2 decimals and unpacks array if lif
     neuron property is returns as array.
 
@@ -397,7 +400,7 @@ def round_if_array(value: Any) -> float:
 
 @typechecked
 def print_neuron_properties_per_graph(
-    G: nx.DiGraph, static: Any, t: int
+    *, G: nx.DiGraph, static: Any, t: int
 ) -> None:
     """Prints bias,du,dv,vth of neuron.
 
@@ -415,17 +418,20 @@ def print_neuron_properties_per_graph(
 
     print("Lava neuron values:")
     print_neuron_properties(
-        lava_neurons, static=static, ids=G.nodes, spikes=None
+        neurons=lava_neurons, static=static, ids=G.nodes, spikes=None
     )
     print("Networkx neuron values:")
     print_neuron_properties(
-        nx_neurons, static=static, ids=G.nodes, spikes=None
+        neurons=nx_neurons, static=static, ids=G.nodes, spikes=None
     )
 
 
 @typechecked
 def manually_create_lif_neuron(neuron_dict: Dict) -> LIF_neuron:
-    """Manually restores a neuron in a certain timestep based on its dict."""
+    """Manually restores a neuron in a certain timestep based on its dict.
+
+    TODO: require explicit args again (with map).
+    """
     minimal_lif = LIF_neuron(
         name=neuron_dict["name"],
         bias=neuron_dict["bias"]["bias"],

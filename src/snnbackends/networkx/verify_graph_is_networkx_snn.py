@@ -13,7 +13,7 @@ from snnbackends.networkx.LIF_neuron import Synapse
 
 @typechecked
 def assert_synaptic_edgeweight_type_is_correct(
-    G: nx.DiGraph, edge: nx.DiGraph.edges
+    *, G: nx.DiGraph, edge: nx.DiGraph.edges
 ) -> None:
     """
 
@@ -40,7 +40,7 @@ def assert_synaptic_edgeweight_type_is_correct(
 
 @typechecked
 def assert_synapse_properties_are_specified(
-    snn_graph: DiGraph, edge: Tuple[str, str]
+    *, snn_graph: DiGraph, edge: Tuple[str, str]
 ) -> None:
     """
 
@@ -48,7 +48,7 @@ def assert_synapse_properties_are_specified(
     :param edge:
 
     """
-    if not has_valid_synapse(snn_graph, edge):
+    if not has_valid_synapse(snn_graph=snn_graph, edge=edge):
         raise Exception(
             f"Not all synapse properties of edge: {edge} are"
             + " specified (correctly): "
@@ -57,7 +57,7 @@ def assert_synapse_properties_are_specified(
 
 
 @typechecked
-def has_valid_synapse(snn_graph: DiGraph, edge: Tuple[str, str]) -> bool:
+def has_valid_synapse(*, snn_graph: DiGraph, edge: Tuple[str, str]) -> bool:
     """
 
     :param G: The original graph on which the MDSA algorithm is ran.
@@ -74,7 +74,7 @@ def has_valid_synapse(snn_graph: DiGraph, edge: Tuple[str, str]) -> bool:
 
 
 @typechecked
-def assert_no_duplicate_edges_exist(G: DiGraph) -> None:
+def assert_no_duplicate_edges_exist(*, G: DiGraph) -> None:
     """Asserts no duplicate edges exist, throws error otherwise.
 
     :param G: The original graph on which the MDSA algorithm is ran.

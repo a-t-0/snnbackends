@@ -18,6 +18,7 @@ from ..networkx.verify_graph_is_networkx_snn import (
 
 @typechecked
 def initialise_networkx_to_snn_conversion(
+    *,
     G: DiGraph,
 ) -> Tuple[List[int], LIF, List[LIF], int, Dict[LIF, int]]:
     """Prepares a networkx graph G to be converted into a Lava-nc neural
@@ -40,19 +41,27 @@ def initialise_networkx_to_snn_conversion(
         converted_nodes,
         lhs_neuron,
         neurons,
-        lhs_nodename,
+        lhs_node_name,
         neuron_dict,
         _,
-    ) = convert_networkx_to_lava_snn(G, [], [], first_node, [], neuron_dict)
-    return converted_nodes, lhs_neuron, neurons, lhs_nodename, neuron_dict
+    ) = convert_networkx_to_lava_snn(
+        G=G,
+        converted_nodes=[],
+        neurons=[],
+        lhs_node_name=first_node,
+        visited_nodes=[],
+        neuron_dict=neuron_dict,
+    )
+    return converted_nodes, lhs_neuron, neurons, lhs_node_name, neuron_dict
 
 
 @typechecked
 def convert_networkx_to_lava_snn(
+    *,
     G: DiGraph,
     converted_nodes: List[int],
     neurons: List[LIF],
-    lhs_nodename: int,
+    lhs_node_name: int,
     visited_nodes: List[int],
     neuron_dict: Dict[LIF, int],
 ) -> Tuple[List[int], LIF, List[LIF], int, Dict[LIF, int], List[int]]:
@@ -60,53 +69,65 @@ def convert_networkx_to_lava_snn(
 
     :param G: The original graph on which the MDSA algorithm is ran. Networkx
      graph that specifies the Lava neural network.
-    :param converted_nodes: List of networkx nodenames that already have been
+    :param converted_nodes: List of networkx node_names that already have been
     converted to the Lava SNN.
     :param neurons: List of Lava neuron objects.
-    :param lhs_nodename: The left-hand-side nodename that is taken as a
+    :param lhs_node_name: The left-hand-side node_name that is taken as a
     start point per recursive evaluation. All the neighbours are the
     right-hand-side neurons.
     :param visited_nodes: Nodes that have been the lhs node in this recursive
     conversion function. Neighbours are also converted, so neighbours can be
     converted but not visited.
     :param neuron_dict: Dictionary with Lava neuron objects as keys, and the
-    nodename as items. (Default value = {})
+    node_name as items. (Default value = {})
     """
     # pylint: disable=too-many-arguments
-    visited_nodes.append(lhs_nodename)
+    visited_nodes.append(lhs_node_name)
 
     # Incoming node, if it is not yet converted, then convert to neuron.
-    if not node_is_converted(converted_nodes, lhs_nodename):
+    if not node_is_converted(
+        converted_nodes=converted_nodes, node_name=lhs_node_name
+    ):
         (
             converted_nodes,
             lhs_neuron,
             neurons,
-            lhs_nodename,
+            lhs_node_name,
         ) = create_neuron_from_node(
-            G, converted_nodes, neurons, lhs_nodename, t=0
+            G=G,
+            converted_nodes=converted_nodes,
+            neurons=neurons,
+            node_name=lhs_node_name,
+            t=0,
         )
     else:
         lhs_neuron = get_neuron_belonging_to_node_from_list(
-            neurons, lhs_nodename, converted_nodes
+            neurons=neurons, node_name=lhs_node_name, nodes=converted_nodes
         )
 
     # For all edges of node, if synapse does not yet exists:
     # Is a set  because bi-directional edges create neighbour duplicates.
     # pylint: disable=R0801
     # Duplicate code is temporary until old code is deleted.
-    for neighbour in set(nx.all_neighbors(G, lhs_nodename)):
+    for neighbour in set(nx.all_neighbors(G, lhs_node_name)):
         if neighbour not in visited_nodes:
 
-            # Convert the neighbour neurons of the lhs_nodename into a Lava
+            # Convert the neighbour neurons of the lhs_node_name into a Lava
             # neuron.
-            if not node_is_converted(converted_nodes, neighbour):
+            if not node_is_converted(
+                converted_nodes=converted_nodes, node_name=neighbour
+            ):
                 (
                     converted_nodes,
                     rhs_neuron,
                     neurons,
                     _,
                 ) = create_neuron_from_node(
-                    G, converted_nodes, neurons, neighbour, t=0
+                    G=G,
+                    converted_nodes=converted_nodes,
+                    neurons=neurons,
+                    node_name=neighbour,
+                    t=0,
                 )
             else:
                 # pylint: disable=R0801
@@ -114,32 +135,42 @@ def convert_networkx_to_lava_snn(
                 # Even if the neighbour is already converted, the lhs and rhs
                 # neurons are still retrieved to create a synapse between them.
                 lhs_neuron = get_neuron_belonging_to_node_from_list(
-                    neurons, lhs_nodename, converted_nodes
+                    neurons=neurons,
+                    node_name=lhs_node_name,
+                    nodes=converted_nodes,
                 )
                 rhs_neuron = get_neuron_belonging_to_node_from_list(
-                    neurons, neighbour, converted_nodes
+                    neurons=neurons, node_name=neighbour, nodes=converted_nodes
                 )
 
             # Create neuron dictionary, LIF objects as keys, neuron
             # descriptions as values.
             neuron_dict = add_neuron_to_dict(
-                neighbour, neuron_dict, rhs_neuron
+                neighbour=neighbour,
+                neuron_dict=neuron_dict,
+                rhs_neuron=rhs_neuron,
             )
 
             # Create synapse between lhs neuron and neighbour/rhs neuron.
             lhs_neuron = add_synapse_between_nodes(
-                G, lhs_neuron, lhs_nodename, neighbour, rhs_neuron
+                G=G,
+                lhs_neuron=lhs_neuron,
+                lhs_node_name=lhs_node_name,
+                neighbour=neighbour,
+                rhs_neuron=rhs_neuron,
             )
 
         # At the first time this function is called, initialise the dictionary.
         if len(visited_nodes) == 1:
             neuron_dict = add_neuron_to_dict(
-                lhs_nodename, neuron_dict, lhs_neuron
+                neighbour=lhs_node_name,
+                neuron_dict=neuron_dict,
+                rhs_neuron=lhs_neuron,
             )
 
     # Recursively call that function on the neighbour neurons until no
     # new neurons are discovered.
-    for neighbour in nx.all_neighbors(G, lhs_nodename):
+    for neighbour in nx.all_neighbors(G, lhs_node_name):
         if neighbour not in visited_nodes:
             # pylint: disable=R0801
             # No other way is found to retrieve the properties at this point,
@@ -152,44 +183,44 @@ def convert_networkx_to_lava_snn(
                 neuron_dict,
                 visited_nodes,
             ) = convert_networkx_to_lava_snn(
-                G,
-                converted_nodes,
-                neurons,
-                neighbour,
-                visited_nodes,
-                neuron_dict,
+                G=G,
+                converted_nodes=converted_nodes,
+                neurons=neurons,
+                lhs_node_name=neighbour,
+                visited_nodes=visited_nodes,
+                neuron_dict=neuron_dict,
             )
     return (
         converted_nodes,
         lhs_neuron,
         neurons,
-        lhs_nodename,
+        lhs_node_name,
         neuron_dict,
         visited_nodes,
     )
 
 
 @typechecked
-def node_is_converted(converted_nodes: List[int], nodename: int) -> bool:
+def node_is_converted(*, converted_nodes: List[int], node_name: int) -> bool:
     """Verifies that the incoming node is not converted into a neuron yet.
 
-    :param converted_nodes: List of networkx nodenames that already have been
+    :param converted_nodes: List of networkx node_names that already have been
     converted to the Lava SNN.
     :param neurons: List of Lava neuron objects.
-    :param nodename: Node of the name of a networkx graph. Name of the node of
+    :param node_name: Node of the name of a networkx graph. Name of the node of
      the networkx graph.
     """
-    return nodename in converted_nodes
+    return node_name in converted_nodes
 
 
 # pylint: disable=R0913
 @typechecked
 def create_neuron_from_node(
+    *,
     G: DiGraph,
     converted_nodes: List[int],
     neurons: List[LIF],
-    nodename: int,
-    old_code: bool = False,
+    node_name: int,
     t: int = 0,
 ) -> Tuple[List[int], LIF, List[LIF], int]:
     """Creates a lava LIF neuron object based on the settings of a node
@@ -201,21 +232,17 @@ def create_neuron_from_node(
 
     :param G: The original graph on which the MDSA algorithm is ran. Networkx
      graph that specifies the Lava neural network.
-    :param converted_nodes: List of networkx nodenames that already have been
+    :param converted_nodes: List of networkx node_names that already have been
     converted to the Lava SNN.
     :param neurons: List of Lava neuron objects.
-    :param nodename: Node of the name of a networkx graph. Name of the node of
+    :param node_name: Node of the name of a networkx graph. Name of the node of
     the networkx graph.
     :param old_code:  (Default value = False)
     """
 
-    # TODO: Remove this if statement by eliminating the difference between the
-    # two code versions.
-    # See: def get_neuron_properties_old(
-    if old_code:
-        bias, du, dv, vth = get_neuron_properties_old(G, nodename)
-    else:
-        bias, du, dv, vth = get_neuron_properties(G, str(nodename), t)
+    bias, du, dv, vth = get_neuron_properties(
+        G=G, node_name=str(node_name), t=t
+    )
 
     # https://github.com/lava-nc/lava/blob/release/v0.5.0/src/lava/proc/lif/
     # process.py
@@ -225,86 +252,69 @@ def create_neuron_from_node(
     neuron = LIF(bias_mant=bias, du=du, dv=dv, vth=vth, shape=(size,))
 
     # Add recurrent synapse if it exists.
-    add_recurrent_edge(G, nodename, neuron)
+    add_recurrent_edge(G=G, node_name=node_name, neuron=neuron)
     # neuron = create_Synapse(neuron, -2)
 
     neurons.append(neuron)
-    converted_nodes.append(nodename)
-    return converted_nodes, neuron, neurons, nodename
+    converted_nodes.append(node_name)
+    return converted_nodes, neuron, neurons, node_name
 
 
 @typechecked
-def add_recurrent_edge(G: DiGraph, nodename: int, neuron: LIF) -> None:
+def add_recurrent_edge(*, G: DiGraph, node_name: int, neuron: LIF) -> None:
     """Adds a recurrent edge to the node if it exists.
 
     :param G: The original graph on which the MDSA algorithm is ran.
-    :param nodename: Node of the name of a networkx graph.
+    :param node_name: Node of the name of a networkx graph.
     :param neuron: Lava neuron object.
     """
-    if G.has_edge(nodename, nodename):
+    if G.has_edge(node_name, node_name):
 
         # Compute synaptic weight.
-        weight = G.edges[(nodename, nodename)]["weight"]
-        create_Synapse(neuron, weight)
+        weight = G.edges[(node_name, node_name)]["weight"]
+        create_Synapse(neuron=neuron, weight=weight)
 
 
 @typechecked
 def get_neuron_properties(
-    G: nx.DiGraph, nodename: Union[int, str], t: int
+    *, G: nx.DiGraph, node_name: Union[int, str], t: int
 ) -> Tuple[float, float, float, float]:
     """Returns the bias,du,dv and vth of a node of the MDSA SNN graph.
 
     :param G: The original graph on which the MDSA algorithm is ran. Networkx
     graph that specifies the Lava neural network.
-    :param nodename: Node of the name of a networkx graph. Name of the node of
+    :param node_name: Node of the name of a networkx graph. Name of the node of
      the networkx graph.
     """
-    if int(nodename) in G.nodes:
-        if "nx_lif" in G.nodes[int(nodename)]:
-            bias = G.nodes[int(nodename)]["nx_lif"][t].bias.get()
-            du = G.nodes[int(nodename)]["nx_lif"][t].du.get()
-            dv = G.nodes[int(nodename)]["nx_lif"][t].dv.get()
-            vth = G.nodes[int(nodename)]["nx_lif"][t].vth.get()
+    if int(node_name) in G.nodes:
+        if "nx_lif" in G.nodes[int(node_name)]:
+            bias = G.nodes[int(node_name)]["nx_lif"][t].bias.get()
+            du = G.nodes[int(node_name)]["nx_lif"][t].du.get()
+            dv = G.nodes[int(node_name)]["nx_lif"][t].dv.get()
+            vth = G.nodes[int(node_name)]["nx_lif"][t].vth.get()
             return bias, du, dv, vth
-        raise Exception(f"node does not have nx_LIF:{G.nodes[int(nodename)]}.")
-    raise Exception(f"nodename:{nodename} not in G.nodes:{G.nodes}.")
+        raise Exception(
+            f"node does not have nx_LIF:{G.nodes[int(node_name)]}."
+        )
+    raise Exception(f"node_name:{node_name} not in G.nodes:{G.nodes}.")
 
 
 @typechecked
-def get_neuron_properties_old(
-    G: nx.DiGraph, node: int
-) -> Tuple[float, float, float, float]:
-    """Returns the neuron properties for the old implementation of the graph.
-
-    # TODO: remove the necesity for this method by only generating networkx
-    graphs according to the new attribute style (du.get())
-
-    :param G: The original graph on which the MDSA algorithm is ran.
-    :param node:
-    """
-    bias = G.nodes[node]["bias"]
-    du = G.nodes[node]["du"]
-    dv = G.nodes[node]["dv"]
-    vth = G.nodes[node]["vth"]
-    return bias, du, dv, vth
-
-
-@typechecked
-def create_Synapse(neuron: LIF, weight: float) -> LIF:
+def create_Synapse(*, neuron: LIF, weight: float) -> LIF:
     """Creates a synapse from a neuron back into itself.
 
     :param neuron: Lava neuron object.
     :param weight: Synaptic weight.
     """
-    dense = create_weighted_synapse(weight)
+    dense = create_weighted_synapse(weight_value=weight)
 
     # Connect neuron to itself.
-    neuron = connect_synapse(neuron, neuron, dense)
+    neuron = connect_synapse(neuron_a=neuron, neuron_b=neuron, dense=dense)
     return neuron
 
 
 @typechecked
-def create_weighted_synapse(weight_value: float) -> Dense:
+def create_weighted_synapse(*, weight_value: float) -> Dense:
     """Creates a weighted synapse between neuron a and neuron b.
 
     :param w: Synaptic weight.
@@ -335,7 +345,7 @@ def create_weighted_synapse(weight_value: float) -> Dense:
 
 
 @typechecked
-def connect_synapse(neuron_a: LIF, neuron_b: LIF, dense: Dense) -> LIF:
+def connect_synapse(*, neuron_a: LIF, neuron_b: LIF, dense: Dense) -> LIF:
     """Connects a synapse named dense from neuron a to neuron b.
 
     :param neuron_a: Lava neuron object for lhs neuron.
@@ -349,25 +359,26 @@ def connect_synapse(neuron_a: LIF, neuron_b: LIF, dense: Dense) -> LIF:
 
 @typechecked
 def get_neuron_belonging_to_node_from_list(
-    neurons: List[LIF], nodename: int, nodes: List[int]
+    *, neurons: List[LIF], node_name: int, nodes: List[int]
 ) -> LIF:
     """Returns the lava LIF neuron object that is represented by the node
-    nodename of a certain graph.
+    node_name of a certain graph.
 
     :param neurons: List of Lava neuron objects.
-    :param nodename: Node of the name of a networkx graph. Name of the node of
+    :param node_name: Node of the name of a networkx graph. Name of the node of
     the networkx graph.
-    :param nodes: List of nodenames of networkx graph.
+    :param nodes: List of node_names of networkx graph.
     """
-    index = nodes.index(nodename)
+    index = nodes.index(node_name)
     return neurons[index]
 
 
 @typechecked
 def add_synapse_between_nodes(
+    *,
     G: DiGraph,
     lhs_neuron: LIF,
-    lhs_nodename: int,
+    lhs_node_name: int,
     neighbour: int,
     rhs_neuron: LIF,
 ) -> LIF:
@@ -380,29 +391,38 @@ def add_synapse_between_nodes(
 
     :param G: The original graph on which the MDSA algorithm is ran. Networkx
      graph that specifies the Lava neural network.
-    :param lhs_neuron: param lhs_nodename: The left-hand-side nodename that is
-     taken as a
+    :param lhs_neuron: param lhs_node_name: The left-hand-side node_name that
+    is taken as a
     start point per recursive evaluation. All the neighbours are the
     right-hand-side neurons.
     :param neighbour: Name of the rhs node of the networkx graph.
     :param rhs_neuron:
-    :param lhs_nodename:
+    :param lhs_node_name:
     """
     # TODO: ensure the synapses are created in both directions.
     lhs_neuron = add_synapse_left_to_right(
-        G, lhs_neuron, lhs_nodename, neighbour, rhs_neuron
+        G=G,
+        lhs_neuron=lhs_neuron,
+        lhs_node_name=lhs_node_name,
+        neighbour=neighbour,
+        rhs_neuron=rhs_neuron,
     )
     lhs_neuron = add_synapse_right_to_left(
-        G, lhs_neuron, lhs_nodename, neighbour, rhs_neuron
+        G=G,
+        lhs_neuron=lhs_neuron,
+        lhs_node_name=lhs_node_name,
+        neighbour=neighbour,
+        rhs_neuron=rhs_neuron,
     )
     return lhs_neuron
 
 
 @typechecked
 def add_synapse_left_to_right(
+    *,
     G: DiGraph,
     lhs_neuron: LIF,
-    lhs_nodename: int,
+    lhs_node_name: int,
     neighbour: int,
     rhs_neuron: LIF,
 ) -> LIF:
@@ -411,37 +431,40 @@ def add_synapse_left_to_right(
 
     :param G: The original graph on which the MDSA algorithm is ran. Networkx
     graph that specifies the Lava neural network.
-    :param lhs_neuron: param lhs_nodename: The left-hand-side nodename that is
-    taken as a start point per recursive evaluation. All the neighbours are the
-    right-hand-side neurons.mdsa
+    :param lhs_neuron: param lhs_node_name: The left-hand-side node_name that
+    is taken as a start point per recursive evaluation. All the neighbours are
+    the right-hand-side neurons.mdsa
     :param neighbour: Name of the rhs node of the networkx graph.
     :param rhs_neuron: param lhs_neuron:
-    :param lhs_nodename:
+    :param lhs_node_name:
     """
     # 3. Get the edge between lhs and rhs nodes. They are neighbours
     # so they have an edge by definition.However it is a directed graph.
-    edge = get_edge_if_exists(G, lhs_nodename, neighbour)
+    edge = get_edge_if_exists(
+        G=G, lhs_node_name=lhs_node_name, rhs_node=neighbour
+    )
 
     if edge is not None:
         # 3. Assert the synapses are fully specified.
-        assert_synapse_properties_are_specified(G, edge)
+        assert_synapse_properties_are_specified(snn_graph=G, edge=edge)
 
         # 4. Create synapse between incoming node and neighbour.
-        dense = create_weighted_synapse(G.edges[edge]["weight"])
+        dense = create_weighted_synapse(weight_value=G.edges[edge]["weight"])
 
         # 5. Connect neurons using created synapse.
         # TODO: write function that checks if synapse is created or not.
         lhs_neuron = connect_synapse_left_to_right(
-            lhs_neuron, rhs_neuron, dense
+            lhs_neuron=lhs_neuron, rhs_neuron=rhs_neuron, dense=dense
         )
     return lhs_neuron
 
 
 @typechecked
 def add_synapse_right_to_left(
+    *,
     G: DiGraph,
     lhs_neuron: LIF,
-    lhs_nodename: int,
+    lhs_node_name: int,
     neighbour: int,
     rhs_neuron: LIF,
 ) -> LIF:
@@ -449,61 +472,63 @@ def add_synapse_right_to_left(
 
     :param G: The original graph on which the MDSA algorithm is ran. Networkx
      graph that specifies the Lava neural network.
-    :param lhs_neuron: param lhs_nodename: The left-hand-side nodename that is
-    taken as a start point per recursive evaluation. All the neighbours are the
-    right-hand-side neurons.
+    :param lhs_neuron: param lhs_node_name: The left-hand-side node_name that
+     is taken as a start point per recursive evaluation. All the neighbours
+     are the right-hand-side neurons.
     :param neighbour: Name of the rhs node of the networkx graph.
     :param rhs_neuron: param rhs_node:
     :param lhs_neuron:
-    :param lhs_nodename:
+    :param lhs_node_name:
 
     """
     # 3. Get the edge between lhs and rhs nodes. They are neighbours
     # so they have an edge by definition.However it is a directed graph.
-    edge = get_edge_if_exists(G, neighbour, lhs_nodename)
+    edge = get_edge_if_exists(
+        G=G, lhs_node_name=neighbour, rhs_node=lhs_node_name
+    )
 
     if edge is not None:
         # 3. Assert the synapses are fully specified.
-        assert_synapse_properties_are_specified(G, edge)
+        assert_synapse_properties_are_specified(snn_graph=G, edge=edge)
 
         # 4. Create synapse between incoming node and neighbour.
-        dense = create_weighted_synapse(G.edges[edge]["weight"])
+        dense = create_weighted_synapse(weight_value=G.edges[edge]["weight"])
 
         # 5. Connect neurons using created synapse.
         # TODO: write function that checks if synapse is created or not.
         lhs_neuron = connect_synapse_right_to_left(
-            lhs_neuron, rhs_neuron, dense
+            lhs_neuron=lhs_neuron, rhs_neuron=rhs_neuron, dense=dense
         )
     return lhs_neuron
 
 
 @typechecked
 def get_edge_if_exists(
-    G: DiGraph, lhs_nodename: int, rhs_node: int
+    *, G: DiGraph, lhs_node_name: int, rhs_node: int
 ) -> Optional[Tuple[int, int]]:
     """Returns the edge object if the graph G has an edge between the two
     nodes. Returns None otherwise.
 
     :param G: The original graph on which the MDSA algorithm is ran. Networkx
     graph that specifies the Lava neural network.
-    :param lhs_nodename: The left-hand-side nodename that is taken as a
+    :param lhs_node_name: The left-hand-side node_name that is taken as a
     start point per recursive evaluation. All the neighbours are the
     right-hand-side neurons.
     :param rhs_node:
     """
-    if G.has_edge(lhs_nodename, rhs_node):
+    if G.has_edge(lhs_node_name, rhs_node):
         for edge in G.edges:
-            if edge == (lhs_nodename, rhs_node):
+            if edge == (lhs_node_name, rhs_node):
                 # print_edge_properties(G, edge)
                 return edge
         # Verify at least an edge the other way round exists.
-        if not G.has_edge(rhs_node, lhs_nodename):
+        if not G.has_edge(rhs_node, lhs_node_name):
             raise Exception(
                 "Would expect an edge between a node and"
                 + " its neighbour in the other direction."
             )
     # Verify at least an edge the other way round exists.
-    if not G.has_edge(rhs_node, lhs_nodename):
+    if not G.has_edge(rhs_node, lhs_node_name):
         raise Exception(
             "Would expect an edge between a node and"
             + " its neighbour in the other direction."
@@ -513,7 +538,7 @@ def get_edge_if_exists(
 
 @typechecked
 def connect_synapse_left_to_right(
-    lhs_neuron: LIF, rhs_neuron: LIF, dense: Dense
+    *, lhs_neuron: LIF, rhs_neuron: LIF, dense: Dense
 ) -> LIF:
     """Connects a synapse named dense from lhs_neuron to rhs_neuron.
 
@@ -528,7 +553,7 @@ def connect_synapse_left_to_right(
 
 @typechecked
 def connect_synapse_right_to_left(
-    lhs_neuron: LIF, rhs_neuron: LIF, dense: Dense
+    *, lhs_neuron: LIF, rhs_neuron: LIF, dense: Dense
 ) -> LIF:
     """Connects a synapse named dense from lhs_neuron to rhs_neuron.
 
@@ -543,13 +568,13 @@ def connect_synapse_right_to_left(
 
 @typechecked
 def add_neuron_to_dict(
-    neighbour: int, neuron_dict: Dict[LIF, int], rhs_neuron: LIF
+    *, neighbour: int, neuron_dict: Dict[LIF, int], rhs_neuron: LIF
 ) -> Dict[LIF, int]:
     """
 
     :param neighbour: Name of the rhs node of the networkx graph.
     :param neuron_dict: Dictionary with Lava neuron objects as keys, and the
-    nodename as items.
+    node_name as items.
     :param rhs_neuron:
 
     """

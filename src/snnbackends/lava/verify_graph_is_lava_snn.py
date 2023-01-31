@@ -9,6 +9,7 @@ from typeguard import typechecked
 
 @typechecked
 def verify_lava_neuron_properties_are_specified(
+    *,
     node: nx.DiGraph.nodes,
 ) -> None:
     """

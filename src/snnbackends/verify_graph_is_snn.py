@@ -2,6 +2,7 @@
 neuron and synapse properties specified."""
 # Import the networkx module.
 
+
 import networkx as nx
 from typeguard import typechecked
 
@@ -17,7 +18,7 @@ from .networkx.verify_graph_is_networkx_snn import (
 
 @typechecked
 def verify_networkx_snn_spec(
-    snn_graph: nx.DiGraph, t: int, backend: str
+    *, snn_graph: nx.DiGraph, t: int, backend: str
 ) -> None:
     """
 
@@ -25,10 +26,10 @@ def verify_networkx_snn_spec(
     :param G: The original graph on which the MDSA algorithm is ran.
 
     """
-    for nodename in snn_graph.nodes:
+    for node_name in snn_graph.nodes:
         # TODO: expect list of neurons, instead of single neuron.
         if backend in ["nx", "generic"]:
-            lif_neurons = snn_graph.nodes[nodename]["nx_lif"]
+            lif_neurons = snn_graph.nodes[node_name]["nx_lif"]
             if not isinstance(lif_neurons[t], LIF_neuron):
                 raise ValueError(
                     f"Error, neuron is not of type:{LIF_neuron}, instead it"
@@ -36,11 +37,11 @@ def verify_networkx_snn_spec(
                 )
         elif backend == "lava":
             verify_lava_neuron_properties_are_specified(
-                snn_graph.nodes[lif_neurons[t]]
+                node=snn_graph.nodes[lif_neurons[t]]
             )
         else:
             raise ValueError(f"Backend:{backend} not supported.")
     #
     # TODO: verify synapse properties
     for edge in snn_graph.edges:
-        assert_synapse_properties_are_specified(snn_graph, edge)
+        assert_synapse_properties_are_specified(snn_graph=snn_graph, edge=edge)

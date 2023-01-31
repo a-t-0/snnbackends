@@ -18,6 +18,7 @@ from .LIF_neuron import LIF_neuron
 
 @typechecked
 def run_snn_on_networkx(
+    *,
     run_config: Run_config,
     snn_graph: nx.DiGraph,
     sim_duration: int,
@@ -30,14 +31,16 @@ def run_snn_on_networkx(
     actual_duration: int = -1
     for t in range(sim_duration):
         # Verify the neurons of the previous timestep are valid.
-        verify_networkx_snn_spec(snn_graph, t, backend="nx")
+        verify_networkx_snn_spec(snn_graph=snn_graph, t=t, backend="nx")
 
         # Copy the neurons into the new timestep.
-        create_neuron_for_next_timestep(snn_graph, t)
+        create_neuron_for_next_timestep(snn_graph=snn_graph, t=t)
 
-        verify_networkx_snn_spec(snn_graph, t + 1, backend="nx")
-        run_simulation_with_networkx_for_1_timestep(snn_graph, t + 1)
-        if mdsa_is_done(run_config, snn_graph, t):
+        verify_networkx_snn_spec(snn_graph=snn_graph, t=t + 1, backend="nx")
+        run_simulation_with_networkx_for_1_timestep(
+            snn_graph=snn_graph, t=t + 1
+        )
+        if mdsa_is_done(run_config=run_config, snn_graph=snn_graph, t=t):
             actual_duration = t + 1
             snn_graph.graph["sim_duration"] = actual_duration
             snn_graph.graph["actual_duration"] = actual_duration
@@ -49,11 +52,13 @@ def run_snn_on_networkx(
         # raise Exception(
         # "Error, was unable to determine why algo did not complete.")
     # Verify the network dimensions. (Ensure sufficient nodes are added.)
-    verify_networkx_graph_dimensions(snn_graph, actual_duration)
+    verify_networkx_graph_dimensions(
+        snn_graph=snn_graph, sim_duration=actual_duration
+    )
 
 
 @typechecked
-def create_neuron_for_next_timestep(snn_graph: nx.DiGraph, t: int) -> None:
+def create_neuron_for_next_timestep(*, snn_graph: nx.DiGraph, t: int) -> None:
     """Creates a new neuron for the next timestep, by copying the old neuron.
 
     TODO: determine what to do with the synapses.
@@ -74,7 +79,7 @@ def create_neuron_for_next_timestep(snn_graph: nx.DiGraph, t: int) -> None:
 
 @typechecked
 def verify_networkx_graph_dimensions(
-    snn_graph: nx.DiGraph, sim_duration: int
+    *, snn_graph: nx.DiGraph, sim_duration: int
 ) -> None:
     """Ensures the graph contains at least sim_duration SNN neurons of a single
     name. This is because each neuron, with a single name, needs to be
@@ -82,35 +87,35 @@ def verify_networkx_graph_dimensions(
     copies of the SNN neuron in a list, one for each simulated timestep.
 
     The graph is expected to adhere to the following structure:
-    snn_graph.nodes[nodename] stores a single node, representing a
+    snn_graph.nodes[node_name] stores a single node, representing a
     neuron over time. Then that node should contain a list of nx_LIF
     neurons over time in: snn_graph.nodes[node]["nx_lif"] which is of
     type: List. Then each element in that list must be of type: nx_LIF()
     neuron.
     """
-    for nodename in snn_graph.nodes:
+    for node_name in snn_graph.nodes:
         # Assert node has nx_LIF neuron object of type list.
-        if not isinstance(snn_graph.nodes[nodename]["nx_lif"], List):
+        if not isinstance(snn_graph.nodes[node_name]["nx_lif"], List):
             raise Exception(
-                f"Error, {nodename} nx_LIF is not of type list. Instead, it is"
-                f' of type:{type(snn_graph.nodes[nodename]["nx_lif"])}'
+                f"Error, {node_name} nx_LIF is not of type list. Instead, it"
+                f' is of type:{type(snn_graph.nodes[node_name]["nx_lif"])}'
             )
 
         # TODO: remove the artifact last neuron, (remove the +1), it is not
         # needed.
-        if not len(snn_graph.nodes[nodename]["nx_lif"]) == sim_duration + 1:
+        if not len(snn_graph.nodes[node_name]["nx_lif"]) == sim_duration + 1:
             raise Exception(
-                f"Error, neuron:{nodename} did not have len:"
+                f"Error, neuron:{node_name} did not have len:"
                 + f"{sim_duration+1}. Instead, it had len:"
-                + f'{len(snn_graph.nodes[nodename]["nx_lif"])}'
+                + f'{len(snn_graph.nodes[node_name]["nx_lif"])}'
             )
 
         for t, neuron_at_time_t in enumerate(
-            snn_graph.nodes[nodename]["nx_lif"]
+            snn_graph.nodes[node_name]["nx_lif"]
         ):
             if not isinstance(neuron_at_time_t, LIF_neuron):
                 raise Exception(
-                    f"Error, {nodename} does not have a neuron of"
+                    f"Error, {node_name} does not have a neuron of"
                     + f"type:{LIF_neuron} at t={t}. Instead, it is of type:"
                     + f"{type(neuron_at_time_t)}"
                 )
@@ -118,7 +123,7 @@ def verify_networkx_graph_dimensions(
 
 @typechecked
 def run_simulation_with_networkx_for_1_timestep(
-    snn_graph: nx.DiGraph, t: int
+    *, snn_graph: nx.DiGraph, t: int
 ) -> None:
     """Runs the networkx simulation of the network for 1 timestep. The results
     of the simulation are stored in the snn_graph.nodes network.
@@ -129,7 +134,7 @@ def run_simulation_with_networkx_for_1_timestep(
     visited_edges = []
 
     # First reset all a_in_next values for a new round of simulation.
-    reset_a_in_next_for_all_neurons(snn_graph, t)
+    reset_a_in_next_for_all_neurons(snn_graph=snn_graph, t=t)
 
     # Compute for each node whether it spikes based on a_in, starting at t=1.
     for node_name in snn_graph.nodes:
@@ -171,7 +176,7 @@ def run_simulation_with_networkx_for_1_timestep(
 
 
 @typechecked
-def reset_a_in_next_for_all_neurons(snn_graph: nx.DiGraph, t: int) -> None:
+def reset_a_in_next_for_all_neurons(*, snn_graph: nx.DiGraph, t: int) -> None:
     """Resets the a_in_next for all neurons to 0.
 
     :param G: The original graph on which the MDSA algorithm is ran.
