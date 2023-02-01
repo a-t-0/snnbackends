@@ -12,6 +12,31 @@ from typeguard import typechecked
 
 
 @typechecked
+def results_nx_graphs_contain_expected_stages(
+    *,
+    results_nx_graphs: Dict,
+    stage_index: int,
+    expected_stages: Optional[List[int]] = None,
+) -> bool:
+    """Checks that the nx_graphs dict contains the expected completed stages in
+    each nxgraph.graph dict.
+
+    Throws an error otherwise.
+    """
+    for _, nx_graph in results_nx_graphs["graphs_dict"].items():
+        if expected_stages is None:
+            expected_stages = get_expected_stages(
+                stage_index=stage_index,
+            )
+        if not nx_graph_contains_correct_stages(
+            nx_graph=nx_graph,
+            expected_stages=expected_stages,
+        ):
+            return False
+    return True
+
+
+@typechecked
 def verify_results_nx_graphs_contain_expected_stages(
     *,
     results_nx_graphs: Dict,
@@ -128,16 +153,32 @@ def verify_results_nx_graphs(
 
 
 @typechecked
-def verify_nx_graph_contains_correct_stages(
-    *, graph_name: str, nx_graph: nx.Graph, expected_stages: List[int]
-) -> None:
+def nx_graph_contains_correct_stages(
+    *, nx_graph: nx.Graph, expected_stages: List[int]
+) -> bool:
     """Verifies the networkx graph object contains the correct completed
     stages."""
     if "completed_stages" in nx_graph.graph.keys():
         for expected_stage in expected_stages:
             if expected_stage not in nx_graph.graph["completed_stages"]:
-                raise ValueError(
-                    f"Error, {graph_name} did not contain the expected "
-                    f"stages:{expected_stages}. Instead, it contained:"
-                    f'{nx_graph.graph["completed_stages"]}'
-                )
+                return False
+    else:
+        return False
+    return True
+
+
+@typechecked
+def verify_nx_graph_contains_correct_stages(
+    *, graph_name: str, nx_graph: nx.Graph, expected_stages: List[int]
+) -> None:
+    """Verifies the networkx graph object contains the correct completed
+    stages."""
+    if not nx_graph_contains_correct_stages(
+        nx_graph=nx_graph,
+        expected_stages=expected_stages,
+    ):
+        raise ValueError(
+            f"Error, {graph_name} did not contain the expected "
+            f"stages:{expected_stages}. Instead, it contained:"
+            f'{nx_graph.graph["completed_stages"]}'
+        )
