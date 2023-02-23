@@ -74,7 +74,7 @@ def create_neuron_for_next_timestep(*, snn_graph: nx.DiGraph, t: int) -> None:
         )
     for node_names in snn_graph.nodes:
         if len(snn_graph.nodes[node_names]["nx_lif"]) < t + 1:
-            raise Exception("Error, tuple not correctly updated.")
+            raise ValueError("Error, tuple not correctly updated.")
 
 
 @typechecked
@@ -96,7 +96,7 @@ def verify_networkx_graph_dimensions(
     for node_name in snn_graph.nodes:
         # Assert node has nx_LIF neuron object of type list.
         if not isinstance(snn_graph.nodes[node_name]["nx_lif"], List):
-            raise Exception(
+            raise TypeError(
                 f"Error, {node_name} nx_LIF is not of type list. Instead, it"
                 f' is of type:{type(snn_graph.nodes[node_name]["nx_lif"])}'
             )
@@ -104,7 +104,7 @@ def verify_networkx_graph_dimensions(
         # TODO: remove the artifact last neuron, (remove the +1), it is not
         # needed.
         if not len(snn_graph.nodes[node_name]["nx_lif"]) == sim_duration + 1:
-            raise Exception(
+            raise ValueError(
                 f"Error, neuron:{node_name} did not have len:"
                 + f"{sim_duration+1}. Instead, it had len:"
                 + f'{len(snn_graph.nodes[node_name]["nx_lif"])}'
@@ -114,7 +114,7 @@ def verify_networkx_graph_dimensions(
             snn_graph.nodes[node_name]["nx_lif"]
         ):
             if not isinstance(neuron_at_time_t, LIF_neuron):
-                raise Exception(
+                raise TypeError(
                     f"Error, {node_name} does not have a neuron of"
                     + f"type:{LIF_neuron} at t={t}. Instead, it is of type:"
                     + f"{type(neuron_at_time_t)}"
@@ -141,7 +141,6 @@ def run_simulation_with_networkx_for_1_timestep(
         nx_lif = snn_graph.nodes[node_name]["nx_lif"][t]
         spikes = nx_lif.simulate_neuron_one_timestep(nx_lif.a_in)
         if spikes:
-
             # Propagate the output spike to the connected receiving neurons.
             for neighbour in nx.all_neighbors(snn_graph, node_name):
                 if (node_name, neighbour) not in visited_edges:
@@ -149,7 +148,6 @@ def run_simulation_with_networkx_for_1_timestep(
 
                     # Check if the outgoing edge is exists and is directed.
                     if snn_graph.has_edge(node_name, neighbour):
-
                         # Compute synaptic weight.
                         synapse_weight = snn_graph.edges[
                             (node_name, neighbour)

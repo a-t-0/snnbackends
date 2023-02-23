@@ -82,13 +82,13 @@ def add_lava_neurons_to_networkx_graph(*, G: nx.Graph, t: int) -> None:
 
     # Assert all nodes have been converted.
     if not len(converted_nodes) == len(G) and not len(neurons) == len(G):
-        raise Exception("Not all nodes were converted.")
+        raise ValueError("Not all nodes were converted.")
 
     # Assert the network is connected.
     # if not nx.is_connected(G):
     if not nx.is_strongly_connected(G) and not nx.is_weakly_connected(G):
-        raise Exception(
-            "Error, the network:{G} is not connected. (There are "
+        raise ValueError(
+            f"Error, the network:{G} is not connected. (There are "
             + " separate/loose nodes)."
         )
 

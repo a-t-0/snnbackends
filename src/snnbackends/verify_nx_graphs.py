@@ -84,18 +84,18 @@ def verify_results_nx_graphs(
     )
     # Verify the 3 dicts are in the result dict.
     if "exp_config" not in results_nx_graphs.keys():
-        raise Exception(
+        raise KeyError(
             "Error, exp_config not in run_result keys:"
             + f"{results_nx_graphs}"
         )
 
     if "run_config" not in results_nx_graphs.keys():
-        raise Exception(
+        raise KeyError(
             "Error, run_config not in results_nx_graphs keys:"
             + f"{results_nx_graphs}"
         )
     if "graphs_dict" not in results_nx_graphs.keys():
-        raise Exception(
+        raise KeyError(
             "Error, graphs_dict not in results_nx_graphs keys:"
             + f"{results_nx_graphs}"
         )
@@ -103,7 +103,7 @@ def verify_results_nx_graphs(
     # Verify the right graphs are within the graphs_dict.
     for graph_name in stage_1_graph_names:
         if graph_name not in results_nx_graphs["graphs_dict"].keys():
-            raise Exception(
+            raise KeyError(
                 f"Error, {graph_name} not in results_nx_graphs keys:"
                 + f"{results_nx_graphs}"
             )
@@ -114,12 +114,12 @@ def verify_results_nx_graphs(
             if isinstance(nx_graph, List):
                 for nx_graph_frame in nx_graph:
                     if not isinstance(nx_graph_frame, nx.Graph):
-                        raise Exception(
+                        raise TypeError(
                             "Error, input nx_graph_frame changed to type:"
                             + f"{type(nx_graph_frame)}"
                         )
             elif not isinstance(nx_graph, nx.Graph):
-                raise Exception(
+                raise TypeError(
                     f"Error, input nx_graph changed to type:{type(nx_graph)}"
                 )
         else:

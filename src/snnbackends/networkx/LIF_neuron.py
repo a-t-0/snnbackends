@@ -17,7 +17,7 @@ class Bias:
         if isinstance(bias, float):
             self.bias = bias
         else:
-            raise Exception(
+            raise TypeError(
                 "Error, bias type is not float, instead, it is:"
                 + f"{type(bias)}"
             )
@@ -37,7 +37,7 @@ class Du:
         if isinstance(du, float):
             self.du = du
         else:
-            raise Exception(
+            raise TypeError(
                 "Error, du type is not float, instead, it is:" + f"{type(du)}"
             )
 
@@ -56,7 +56,7 @@ class Dv:
         if isinstance(dv, float):
             self.dv = dv
         else:
-            raise Exception(
+            raise TypeError(
                 "Error, dv type is not float, instead, it is:" + f"{type(dv)}"
             )
 
@@ -75,7 +75,7 @@ class U:
         if isinstance(u, float):
             self.u = u
         else:
-            raise Exception(
+            raise TypeError(
                 "Error, u type is not float, instead, it is:" + f"{type(u)}"
             )
 
@@ -94,7 +94,7 @@ class V:
         if isinstance(v, float):
             self.v = v
         else:
-            raise Exception(
+            raise TypeError(
                 "Error, v type is not float, instead, it is:" + f"{type(v)}"
             )
 
@@ -105,7 +105,10 @@ class V:
 
 
 class Vth:
-    """Creates a vth object that contains a float, and a get() function."""
+    """Creates a vth object that contains a float, and a get() function.
+
+    TODO: remove all these superfluous type checks.
+    """
 
     # pylint: disable=R0903
     @typechecked
@@ -113,7 +116,7 @@ class Vth:
         if isinstance(vth, float):
             self.vth = vth
         else:
-            raise Exception(
+            raise TypeError(
                 "Error, vth type is not float, instead, it is:"
                 + f"{type(vth)}"
             )
@@ -146,7 +149,7 @@ class Synapse:
         """Stores a recurrent synapse."""
         self.weight: int = weight
         if delay < 0:
-            raise Exception(f"Error, delay:{delay} must be 0 or larger.")
+            raise ValueError(f"Error, delay:{delay} must be 0 or larger.")
         self.delay: int = delay
         self.change_per_t: int = change_per_t
 
@@ -171,10 +174,12 @@ class Identifier:
         """
         self.description: str = description
         if position < 0:
-            raise Exception(f"Error, position:{position} must be 0 or larger.")
+            raise ValueError(
+                f"Error, position:{position} must be 0 or larger."
+            )
         self.position: int = position
         if position < 0:
-            raise Exception(f"Error, value:{value} must be 0 or larger.")
+            raise ValueError(f"Error, value:{value} must be 0 or larger.")
         self.value: int = value
 
 
@@ -246,7 +251,7 @@ class LIF_neuron:
         identifier_positions = list(map(lambda x: x.position, identifiers))
         for i, _ in enumerate(identifiers):
             if i not in identifier_positions:
-                raise Exception(
+                raise ValueError(
                     "Error, the index positions are not "
                     + f"consecutive:{identifier_positions}"
                 )
@@ -261,7 +266,7 @@ class LIF_neuron:
         if identifiers is None:
             return base_name
         if len(identifiers) <= 0:
-            raise Exception("Error, expected identifiers.")
+            raise ValueError("Error, expected identifiers.")
         subscripts = ["_"] * len(identifiers)
         for identifier in identifiers:
             subscripts[identifier.position] = f"_{identifier.value}"
@@ -365,7 +370,7 @@ def print_neuron_properties(
                 )
             else:
                 print(type(x))
-                raise Exception("Unsupported neuron type.")
+                raise TypeError("Unsupported neuron type.")
         print("")
         for x in neurons:
             print(f"vth={str(round(x.vth.get(),2)) : <{spacing+1}}", end=" ")

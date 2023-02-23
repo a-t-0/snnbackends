@@ -111,7 +111,6 @@ def convert_networkx_to_lava_snn(
     # Duplicate code is temporary until old code is deleted.
     for neighbour in set(nx.all_neighbors(G, lhs_node_name)):
         if neighbour not in visited_nodes:
-
             # Convert the neighbour neurons of the lhs_node_name into a Lava
             # neuron.
             if not node_is_converted(
@@ -269,7 +268,6 @@ def add_recurrent_edge(*, G: DiGraph, node_name: int, neuron: LIF) -> None:
     :param neuron: Lava neuron object.
     """
     if G.has_edge(node_name, node_name):
-
         # Compute synaptic weight.
         weight = G.edges[(node_name, node_name)]["weight"]
         create_Synapse(neuron=neuron, weight=weight)
@@ -293,10 +291,10 @@ def get_neuron_properties(
             dv = G.nodes[int(node_name)]["nx_lif"][t].dv.get()
             vth = G.nodes[int(node_name)]["nx_lif"][t].vth.get()
             return bias, du, dv, vth
-        raise Exception(
+        raise AttributeError(
             f"node does not have nx_LIF:{G.nodes[int(node_name)]}."
         )
-    raise Exception(f"node_name:{node_name} not in G.nodes:{G.nodes}.")
+    raise ValueError(f"node_name:{node_name} not in G.nodes:{G.nodes}.")
 
 
 @typechecked
@@ -523,13 +521,13 @@ def get_edge_if_exists(
                 return edge
         # Verify at least an edge the other way round exists.
         if not G.has_edge(rhs_node, lhs_node_name):
-            raise Exception(
+            raise ValueError(
                 "Would expect an edge between a node and"
                 + " its neighbour in the other direction."
             )
     # Verify at least an edge the other way round exists.
     if not G.has_edge(rhs_node, lhs_node_name):
-        raise Exception(
+        raise ValueError(
             "Would expect an edge between a node and"
             + " its neighbour in the other direction."
         )

@@ -23,16 +23,15 @@ def assert_synaptic_edgeweight_type_is_correct(
 
     """
     if nx.get_edge_attributes(G, "weight") != {}:
-
         if not isinstance(G.edges[edge]["weight"], Synapse):
-            raise Exception(
+            raise TypeError(
                 f"Weight of edge {edge} is not a"
                 + " Synapse object. It is"
                 + f': {G.edges[edge]["weight"]} of type:'
                 f'{type(G.edges[edge]["weight"])}'
             )
     else:
-        raise Exception(
+        raise TypeError(
             f"Weight of edge {edge} is an attribute (in the"
             + ' form of: "weight").'
         )
@@ -49,7 +48,7 @@ def assert_synapse_properties_are_specified(
 
     """
     if not has_valid_synapse(snn_graph=snn_graph, edge=edge):
-        raise Exception(
+        raise ValueError(
             f"Not all synapse properties of edge: {edge} are"
             + " specified (correctly): "
             + f"{snn_graph.edges[edge]}"
@@ -84,7 +83,7 @@ def assert_no_duplicate_edges_exist(*, G: DiGraph) -> None:
         if edge not in visited_edges:
             visited_edges.append(edge)
         else:
-            raise Exception(
+            raise ValueError(
                 f"Error, edge:{edge} is a duplicate edge as it"
                 + f" already is in:{visited_edges}"
             )
