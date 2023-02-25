@@ -9,7 +9,7 @@ from typing import List
 
 import networkx as nx
 from snnalgorithms.sparse.MDSA.is_done import mdsa_is_done
-from snncompare.exp_config.run_config.Run_config import Run_config
+from snncompare.run_config.Run_config import Run_config
 from typeguard import typechecked
 
 from ..verify_graph_is_snn import verify_networkx_snn_spec

@@ -2,11 +2,11 @@
 from typing import Dict, List, Optional
 
 import networkx as nx
-from snncompare.exp_config.run_config.Run_config import Run_config
 from snncompare.export_results.verify_stage_1_graphs import (
     get_expected_stage_1_graph_names,
 )
 from snncompare.helper import get_expected_stages
+from snncompare.run_config.Run_config import Run_config
 from snncompare.verification_generic import verify_completed_stages_list
 from typeguard import typechecked
 
