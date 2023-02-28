@@ -405,7 +405,7 @@ def round_if_array(*, value: Any) -> float:
 
 @typechecked
 def print_neuron_properties_per_graph(
-    *, G: nx.DiGraph, static: Any, t: int
+    *, G: nx.DiGraph, static: bool, t: int, neuron_type: str
 ) -> None:
     """Prints bias,du,dv,vth of neuron.
 
@@ -417,18 +417,22 @@ def print_neuron_properties_per_graph(
     lava_neurons = []
     nx_neurons = []
     for node in G.nodes:
-        # TODO: also convert lava LIF function of t
-        lava_neurons.append(G.nodes[node]["lava_LIF"])
-        nx_neurons.append(G.nodes[node]["nx_lif"][t])
-
-    print("Lava neuron values:")
-    print_neuron_properties(
-        neurons=lava_neurons, static=static, ids=G.nodes, spikes=None
-    )
-    print("Networkx neuron values:")
-    print_neuron_properties(
-        neurons=nx_neurons, static=static, ids=G.nodes, spikes=None
-    )
+        if neuron_type == "lava_LIF":
+            lava_neurons.append(G.nodes[node]["lava_LIF"])
+            print("Lava neuron values:")
+            print_neuron_properties(
+                neurons=lava_neurons, static=static, ids=G.nodes, spikes=None
+            )
+        elif neuron_type == "nx_lif":
+            nx_neurons.append(G.nodes[node]["nx_lif"][t])
+            print("Networkx neuron values:")
+            print_neuron_properties(
+                neurons=nx_neurons, static=static, ids=G.nodes, spikes=None
+            )
+        else:
+            raise NotImplementedError(
+                f"Error: neuron_type:{neuron_type} not yet supported."
+            )
 
 
 @typechecked
