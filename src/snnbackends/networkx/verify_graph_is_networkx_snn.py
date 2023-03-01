@@ -65,6 +65,7 @@ def has_valid_synapse(*, snn_graph: DiGraph, edge: Tuple[str, str]) -> bool:
     """
     for key in snn_graph.edges[edge].keys():
         if key not in ["synapse", "is_redundant"]:
+            print(f"key={key}")
             return False
         if key == "synapse":
             if not isinstance(snn_graph.edges[edge]["synapse"], Synapse):
