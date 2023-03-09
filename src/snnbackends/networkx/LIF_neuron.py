@@ -142,12 +142,12 @@ class Synapse:
     @typechecked
     def __init__(
         self,
-        weight: int,
+        weight: Union[int, float],
         delay: int,
         change_per_t: int,
     ):
         """Stores a recurrent synapse."""
-        self.weight: int = weight
+        self.weight: Union[int, float] = weight
         if delay < 0:
             raise ValueError(f"Error, delay:{delay} must be 0 or larger.")
         self.delay: int = delay
