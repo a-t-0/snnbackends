@@ -54,14 +54,16 @@ def simsnn_synapses_to_json(*, synapses: List[Synapse]) -> List[Dict]:
 
 
 @typechecked
-def json_to_simsnn(*, json_simsnn: Json_dict_simsnn) -> Simulator:
+def json_to_simsnn(*, json_simsnn: Dict) -> Simulator:
     """Converts exportable json dict int simsnn Simulator."""
     net = Network()
 
-    simsnn_nodes = json_to_simsnn_nodes(json_nodes=json_simsnn.nodes, net=net)
+    simsnn_nodes = json_to_simsnn_nodes(
+        json_nodes=json_simsnn["nodes"], net=net
+    )
     json_to_simsnn_synapses_in_net(
         simsnn_nodes=simsnn_nodes,
-        json_synapses=json_simsnn.synapses,
+        json_synapses=json_simsnn["synapses"],
         net=net,
     )
     sim = Simulator(net)
