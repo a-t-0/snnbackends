@@ -40,6 +40,7 @@ def run_snn_on_networkx(
         run_simulation_with_networkx_for_1_timestep(
             snn_graph=snn_graph, t=t + 1
         )
+        # TODO: simplify this check.
         if mdsa_is_done(run_config=run_config, snn_graph=snn_graph, t=t):
             actual_duration = t + 1
             snn_graph.graph["sim_duration"] = actual_duration

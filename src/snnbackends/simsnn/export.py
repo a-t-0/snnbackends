@@ -32,10 +32,10 @@ class Json_dict_simsnn:
 def simsnn_nodes_to_json(*, nodes: List[LIF]) -> Dict[str, Dict]:
     """Converts simsnn nodes into an exportable json dict."""
     json_nodes: Dict[str, Dict] = {}
-    node_names: List[str] = list(map(lambda x: x.ID, nodes))
+    node_names: List[str] = list(map(lambda x: x.name, nodes))
     for node in nodes:
         assert_contains_no_dupes(some_list=node_names)
-        json_nodes[node.ID] = node.__dict__
+        json_nodes[node.name] = node.__dict__
     return json_nodes
 
 
@@ -67,6 +67,9 @@ def json_to_simsnn(*, json_simsnn: Dict) -> Simulator:
         net=net,
     )
     sim = Simulator(net)
+
+    # Ensure the spikes can be monitored.
+    sim.raster.addTarget(list(simsnn_nodes.values()))
     return sim
 
 
@@ -74,11 +77,7 @@ def json_to_simsnn(*, json_simsnn: Dict) -> Simulator:
 def json_to_simsnn_nodes(
     *, json_nodes: Dict[str, Dict], net: Network
 ) -> Dict[str, LIF]:
-    """Converts exportable json dict into simsnn nodes.
-
-    TODO: if add_to_raster
-    TODO: if add_to_multimeter:
-    """
+    """Converts exportable json dict into simsnn nodes."""
     node_names: List[str] = list(json_nodes.keys())
     assert_contains_no_dupes(some_list=node_names)
 
@@ -89,7 +88,9 @@ def json_to_simsnn_nodes(
             key: json_node[key]
             for key in set(list(json_node.keys())) - set(exclude_keys)
         }
+        lif_dict["amplitude"] = 1
         simsnn[node_name] = net.createLIF(**lif_dict)
+
     return simsnn
 
 
