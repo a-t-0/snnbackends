@@ -54,6 +54,7 @@ def verify_results_nx_graphs_contain_expected_stages(
             expected_stages = get_expected_stages(
                 stage_index=stage_index,
             )
+        print(f"graph_name={graph_name}")
         verify_snn_contains_correct_stages(
             graph_name=graph_name,
             snn=nx_graph,
