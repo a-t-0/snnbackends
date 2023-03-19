@@ -66,6 +66,9 @@ def json_to_simsnn(*, json_simsnn: Dict) -> Simulator:
         json_synapses=json_simsnn["synapses"],
         net=net,
     )
+
+    # Also load completed stages from graph attribute.
+    net.graph.graph = json_simsnn["graph"]
     sim = Simulator(net)
 
     # Ensure the spikes can be monitored.
