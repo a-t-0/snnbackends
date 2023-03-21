@@ -71,8 +71,13 @@ def json_to_simsnn(*, json_simsnn: Dict) -> Simulator:
     net.graph.graph = json_simsnn["graph"]
     sim = Simulator(net)
 
-    # Ensure the spikes can be monitored.
-    sim.raster.addTarget(list(simsnn_nodes.values()))
+    # TODO: restore check: if add_to_raster:
+    # Add all neurons to the raster.
+    sim.raster.addTarget(net.nodes)
+    # TODO: restore check: if add_to_multimeter:
+    # Add all neurons to the multimeter.
+    sim.multimeter.addTarget(net.nodes)
+
     return sim
 
 
