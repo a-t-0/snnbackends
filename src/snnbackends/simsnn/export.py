@@ -69,7 +69,7 @@ def json_to_simsnn(*, json_simsnn: Dict) -> Simulator:
 
     # Also load completed stages from graph attribute.
     net.graph.graph = json_simsnn["graph"]
-    sim = Simulator(net)
+    sim = Simulator(net, monitor_I=True)
 
     # TODO: restore check: if add_to_raster:
     # Add all neurons to the raster.
@@ -91,7 +91,8 @@ def json_to_simsnn_nodes(
 
     simsnn: Dict[str, LIF] = {}
     for node_name, json_node in json_nodes.items():
-        exclude_keys = ["I", "out", "V", "spike_only_if_thr_exceeded"]
+        # exclude_keys = ["I", "out", "V", "spike_only_if_thr_exceeded"]
+        exclude_keys = ["I", "out", "V"]
         lif_dict = {
             key: json_node[key]
             for key in set(list(json_node.keys())) - set(exclude_keys)

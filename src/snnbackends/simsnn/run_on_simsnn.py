@@ -26,8 +26,9 @@ def run_snn_on_simsnn(
 
         for t in range(sim_duration):
             # TODO: Verify the neurons of the previous timestep are valid.
-
-            snn.run(1, plotting=False, extend_multimeter=True)
+            snn.run(
+                1, plotting=False, extend_multimeter=True, extend_raster=True
+            )
             if mdsa_is_done_on_simsnn(
                 snn=snn,
             ):
