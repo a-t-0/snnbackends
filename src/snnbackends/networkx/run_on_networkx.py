@@ -28,7 +28,6 @@ def run_snn_on_networkx(
     :param G: The original graph on which the MDSA algorithm is ran.
     :param t: int:
     """
-    actual_duration: int = -1
     for t in range(sim_duration):
         # Verify the neurons of the previous timestep are valid.
         verify_networkx_snn_spec(snn_graph=snn_graph, t=t, backend="nx")
@@ -40,21 +39,25 @@ def run_snn_on_networkx(
         run_simulation_with_networkx_for_1_timestep(
             snn_graph=snn_graph, t=t + 1
         )
-        # TODO: simplify this check.
+
+        # TODO: move this into mdsa_is_done after ensuring that works properly.
+        snn_graph.graph["actual_duration"] = t + 1
         if mdsa_is_done(run_config=run_config, snn_graph=snn_graph, t=t):
-            actual_duration = t + 1
-            snn_graph.graph["sim_duration"] = actual_duration
-            snn_graph.graph["actual_duration"] = actual_duration
+            snn_graph.graph["sim_duration"] = snn_graph.graph[
+                "actual_duration"
+            ]
             break
 
-    # TODO: delete
-    if actual_duration < 0:
-        actual_duration = sim_duration
-        # raise Exception(
-        # "Error, was unable to determine why algo did not complete.")
+    if snn_graph.graph["actual_duration"] < 0:
+        raise SystemError(
+            "Error, was unable to determine why algo did not complete."
+            + f"sim_duration={sim_duration}"
+            + f'actual_duration={snn_graph.graph["actual_duration"]}'
+        )
+
     # Verify the network dimensions. (Ensure sufficient nodes are added.)
     verify_networkx_graph_dimensions(
-        snn_graph=snn_graph, sim_duration=actual_duration
+        snn_graph=snn_graph, sim_duration=snn_graph.graph["actual_duration"]
     )
 
 

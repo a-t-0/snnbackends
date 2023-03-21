@@ -86,7 +86,7 @@ def json_to_simsnn_nodes(
 
     simsnn: Dict[str, LIF] = {}
     for node_name, json_node in json_nodes.items():
-        exclude_keys = ["I", "out", "V"]
+        exclude_keys = ["I", "out", "V", "spike_only_if_thr_exceeded"]
         lif_dict = {
             key: json_node[key]
             for key in set(list(json_node.keys())) - set(exclude_keys)
