@@ -47,6 +47,7 @@ def simsnn_synapses_to_json(*, synapses: List[Synapse]) -> List[Dict]:
         json_synapses.append(
             {key: synapse.__dict__[key] for key in ("ID", "index", "w")}
         )
+        print(f"synapse={synapse.__dict__}")
         json_synapses[-1]["d"] = len(synapse.out_pre.tolist())
         json_synapses[-1]["out_pre"] = synapse.out_pre.tolist()
 
