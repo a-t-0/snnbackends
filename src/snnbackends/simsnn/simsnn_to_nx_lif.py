@@ -1,6 +1,5 @@
 """Conversion from simsnn (back) to nx_lif."""
 import copy
-from pprint import pprint
 from typing import List
 
 import networkx as nx
@@ -84,11 +83,11 @@ def add_simsnn_simulation_data_to_reconstructed_nx_lif(
         )
 
     # Copy the lif neurons for the simulation duration.
-    for t in range(1, sim_duration):
+    for t in range(0, sim_duration):
         for node_index, node_name in enumerate(nx_snn.nodes):
             # Copy spikes into nx_lif
             # TODO: verify node_index corresponds to multimeter voltage.
-            # pprint(simsnn.raster.__dict__)
+
             nx_snn.nodes[node_name]["nx_lif"][t].spikes = bool(
                 simsnn.raster.spikes[t][node_index]
             )
@@ -110,33 +109,32 @@ def add_simsnn_simulation_data_to_reconstructed_nx_lif(
             )
 
         for node_index, node_name in enumerate(nx_snn.nodes):
-            # TODO: copy a_in from simsnn neuron.
-            if t > 0:
-                nx_snn.nodes[node_name]["nx_lif"][
-                    t - 1
-                ].a_in_next = get_a_in_from_sim_snn(
-                    simsnn=simsnn,
-                    node_name=node_name,
-                    nx_snn=nx_snn,
-                    t=t,
-                )
-                nx_snn.nodes[node_name]["nx_lif"][t].a_in = nx_snn.nodes[
-                    node_name
-                ]["nx_lif"][t - 1].a_in_next
+            # TODO: Differentiate between a_in and a_in_next also in
+            # visualisation.
 
-        pprint(nx_snn.nodes[node_name]["nx_lif"][-1].__dict__)
+            # Get a_in_next for timestep t+1.
+            nx_snn.nodes[node_name]["nx_lif"][
+                t
+            ].a_in_next = get_a_in_next_from_sim_snn(
+                simsnn=simsnn,
+                node_name=node_name,
+                nx_snn=nx_snn,
+                t=t,
+            )
 
         # Verify the dimensions of the outgoing nx_snn.
         # TODO: a_in or a_in_next
-        verify_nr_of_lif_neurons(nx_snn=nx_snn, expected_len=t + 2)
+        # verify_nr_of_lif_neurons(nx_snn=nx_snn, expected_len=t + 2)
     return nx_snn
 
 
 @typechecked
-def get_a_in_from_sim_snn(
+def get_a_in_next_from_sim_snn(
     simsnn: Simulator, node_name: str, nx_snn: nx.DiGraph, t: int
 ) -> float:
-    """Raises error if the nr of lif neurons per node is not as expected."""
+    """Returns the input signal that is received at timestep t+1 per node."""
+
+    # Get the simsnn neuron object belonging to the node_name.
     neuron: LIF
     for x in simsnn.network.nodes:
         if x.name == node_name:
@@ -145,19 +143,22 @@ def get_a_in_from_sim_snn(
     if not isinstance(neuron, LIF):
         raise ValueError(f"Neuron:{node_name} not found.")
 
+    # Get the simsnn synapses that connects with requested simsnn neuron.
     incoming_spike_neurons: List[LIF] = []
     a_in_next: float = 0
     for synapse in simsnn.network.synapses:
         # TODO: also support != 0 for .out<0.
         if (
             synapse.post == neuron
-            and nx_snn.nodes[synapse.pre.name]["nx_lif"][t - 1].spikes
+            # If the incoming neurons spikes at the current timestep, add its
+            # input signal into the a_in_next.
+            and nx_snn.nodes[synapse.pre.name]["nx_lif"][t].spikes
         ):
-            print(f"{t-1} {node_name}-{synapse.pre.name}: {synapse.w}")
+            print(f"{t} {synapse.pre.name}->{node_name}: {synapse.w}")
             incoming_spike_neurons.append(synapse.pre)
             a_in_next += synapse.w
     if len(incoming_spike_neurons) > 0:
-        print(f"a_in_next={a_in_next}")
+        print(f"a_in_next={a_in_next}\n")
     return a_in_next
 
 

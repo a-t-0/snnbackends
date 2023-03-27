@@ -29,8 +29,12 @@ def run_snn_on_simsnn(
             snn.run(
                 1, plotting=False, extend_multimeter=True, extend_raster=True
             )
-            if mdsa_is_done_on_simsnn(
-                snn=snn,
+            if (
+                mdsa_is_done_on_simsnn(
+                    snn=snn,
+                    t=t,
+                )
+                or t == sim_duration - 1
             ):
                 snn.network.graph.graph["sim_duration"] = t + 1
                 snn.network.graph.graph[
@@ -39,8 +43,7 @@ def run_snn_on_simsnn(
                 break
 
         # TODO: verify snn specification.
-
-        if snn.network.graph.graph["actual_duration"] < 0:
+        if snn.network.graph.graph["actual_duration"] < 2:
             raise SystemError(
                 "Error, was unable to determine why algo did not complete."
                 + f"sim_duration={sim_duration}"
@@ -57,6 +60,7 @@ def run_snn_on_simsnn(
 @typechecked
 def mdsa_is_done_on_simsnn(
     snn: Simulator,
+    t: int,
 ) -> bool:
     """Returns True if the MDSA snn is done, False otherwise."""
 
@@ -66,10 +70,13 @@ def mdsa_is_done_on_simsnn(
             return True
 
     # If the selector or next_round neurons still spike the snn is not done.
-    if not any(
-        neuron_identifier in node.name and node.out > 0
-        for node in snn.network.nodes
-        for neuron_identifier in ["selector", "next_round"]
+    if (
+        not any(
+            neuron_identifier in node.name and node.out > 0
+            for node in snn.network.nodes
+            for neuron_identifier in ["selector", "next_round"]
+        )
+        and t > 0
     ):
         return True
     return False
