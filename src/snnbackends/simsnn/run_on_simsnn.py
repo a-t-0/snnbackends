@@ -29,7 +29,6 @@ def run_snn_on_simsnn(
             snn.run(
                 1, plotting=False, extend_multimeter=True, extend_raster=True
             )
-            print(f"t={t}\n")
             if (
                 mdsa_is_done_on_simsnn(
                     snn=snn,
