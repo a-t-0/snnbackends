@@ -1,7 +1,8 @@
 """Methods used to verify the graphs."""
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import networkx as nx
+from simsnn.core.simulators import Simulator
 from snncompare.export_results.verify_stage_1_graphs import (
     get_expected_stage_1_graph_names,
 )
@@ -28,8 +29,8 @@ def results_nx_graphs_contain_expected_stages(
             expected_stages = get_expected_stages(
                 stage_index=stage_index,
             )
-        if not nx_graph_contains_correct_stages(
-            nx_graph=nx_graph,
+        if not graph_contains_correct_stages(
+            snn=nx_graph,
             expected_stages=expected_stages,
         ):
             return False
@@ -53,9 +54,9 @@ def verify_results_nx_graphs_contain_expected_stages(
             expected_stages = get_expected_stages(
                 stage_index=stage_index,
             )
-        verify_nx_graph_contains_correct_stages(
+        verify_snn_contains_correct_stages(
             graph_name=graph_name,
-            nx_graph=nx_graph,
+            snn=nx_graph,
             expected_stages=expected_stages,
         )
 
@@ -153,14 +154,18 @@ def verify_results_nx_graphs(
 
 
 @typechecked
-def nx_graph_contains_correct_stages(
-    *, nx_graph: nx.Graph, expected_stages: List[int]
+def graph_contains_correct_stages(
+    *, snn: Union[nx.Graph, Simulator], expected_stages: List[int]
 ) -> bool:
     """Verifies the networkx graph object contains the correct completed
     stages."""
-    if "completed_stages" in nx_graph.graph.keys():
+    if isinstance(snn, Simulator):
+        graph = snn.network.graph
+    else:
+        graph = snn
+    if "completed_stages" in graph.graph.keys():
         for expected_stage in expected_stages:
-            if expected_stage not in nx_graph.graph["completed_stages"]:
+            if expected_stage not in graph.graph["completed_stages"]:
                 return False
     else:
         return False
@@ -168,17 +173,25 @@ def nx_graph_contains_correct_stages(
 
 
 @typechecked
-def verify_nx_graph_contains_correct_stages(
-    *, graph_name: str, nx_graph: nx.Graph, expected_stages: List[int]
+def verify_snn_contains_correct_stages(
+    *,
+    graph_name: str,
+    snn: Union[nx.Graph, Simulator],
+    expected_stages: List[int],
 ) -> None:
     """Verifies the networkx graph object contains the correct completed
     stages."""
-    if not nx_graph_contains_correct_stages(
-        nx_graph=nx_graph,
+    if isinstance(snn, Simulator):
+        graph = snn.network.graph
+    else:
+        graph = snn
+
+    if not graph_contains_correct_stages(
+        snn=graph,
         expected_stages=expected_stages,
     ):
         raise ValueError(
             f"Error, {graph_name} did not contain the expected "
             f"stages:{expected_stages}. Instead, it contained:"
-            f'{nx_graph.graph["completed_stages"]}'
+            f'{snn.graph["completed_stages"]}'
         )
