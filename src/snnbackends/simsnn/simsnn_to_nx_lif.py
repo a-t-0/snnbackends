@@ -90,6 +90,7 @@ def add_simsnn_simulation_data_to_reconstructed_nx_lif(
             # Copy spikes into nx_lif
             # TODO: verify node_index corresponds to multimeter voltage.
 
+            pprint(simsnn.raster)
             nx_snn.nodes[node_name]["nx_lif"][t].spikes = bool(
                 simsnn.raster.spikes[t][node_index]
             )
