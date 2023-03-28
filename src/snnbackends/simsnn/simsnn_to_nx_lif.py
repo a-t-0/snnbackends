@@ -1,6 +1,5 @@
 """Conversion from simsnn (back) to nx_lif."""
 import copy
-from pprint import pprint
 from typing import List
 
 import networkx as nx
@@ -71,7 +70,6 @@ def add_simsnn_simulation_data_to_reconstructed_nx_lif(
     simulation_duration x unique lif neurons, (one per timestep).
     """
 
-    pprint(simsnn.multimeter.__dict__)
     # Get the simulation duration from the multimeter.
     sim_duration: int = len(simsnn.multimeter.V)
     print(f"sim_duration={sim_duration}")
@@ -90,7 +88,6 @@ def add_simsnn_simulation_data_to_reconstructed_nx_lif(
             # Copy spikes into nx_lif
             # TODO: verify node_index corresponds to multimeter voltage.
 
-            pprint(simsnn.raster)
             nx_snn.nodes[node_name]["nx_lif"][t].spikes = bool(
                 simsnn.raster.spikes[t][node_index]
             )
