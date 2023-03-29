@@ -22,8 +22,6 @@ def run_snn_on_simsnn(
         )
 
     if list(run_config.algorithm.keys()) == ["MDSA"]:
-        print(f"sim_duration={sim_duration}")
-
         for t in range(sim_duration):
             # TODO: Verify the neurons of the previous timestep are valid.
             snn.run(

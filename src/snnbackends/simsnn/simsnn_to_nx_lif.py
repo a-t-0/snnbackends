@@ -72,7 +72,6 @@ def add_simsnn_simulation_data_to_reconstructed_nx_lif(
 
     # Get the simulation duration from the multimeter.
     sim_duration: int = len(simsnn.multimeter.V)
-    print(f"sim_duration={sim_duration}")
 
     # Verify the raster has the same simulation duration as multimeter.
     verify_nr_of_lif_neurons(nx_snn=nx_snn, expected_len=1)
