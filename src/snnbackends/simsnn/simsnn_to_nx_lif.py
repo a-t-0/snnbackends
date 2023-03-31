@@ -1,6 +1,6 @@
 """Conversion from simsnn (back) to nx_lif."""
 import copy
-from typing import List
+from typing import List, Optional
 
 import networkx as nx
 from simsnn.core.nodes import LIF
@@ -129,7 +129,11 @@ def add_simsnn_simulation_data_to_reconstructed_nx_lif(
 
 @typechecked
 def get_a_in_next_from_sim_snn(
-    simsnn: Simulator, node_name: str, nx_snn: nx.DiGraph, t: int
+    simsnn: Simulator,
+    node_name: str,
+    nx_snn: nx.DiGraph,
+    t: int,
+    verbose: Optional[bool] = False,
 ) -> float:
     """Returns the input signal that is received at timestep t+1 per node."""
 
@@ -153,10 +157,12 @@ def get_a_in_next_from_sim_snn(
             # input signal into the a_in_next.
             and nx_snn.nodes[synapse.pre.name]["nx_lif"][t].spikes
         ):
-            print(f"{t} {synapse.pre.name}->{node_name}: {synapse.w}")
+            if verbose:
+                print(f"{t} {synapse.pre.name}->{node_name}: {synapse.w}")
             incoming_spike_neurons.append(synapse.pre)
             a_in_next += synapse.w
-    if len(incoming_spike_neurons) > 0:
+
+    if len(incoming_spike_neurons) > 0 and verbose:
         print(f"a_in_next={a_in_next}\n")
     return a_in_next
 
