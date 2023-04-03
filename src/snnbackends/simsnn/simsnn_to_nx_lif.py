@@ -133,7 +133,7 @@ def get_a_in_next_from_sim_snn(
     node_name: str,
     nx_snn: nx.DiGraph,
     t: int,
-    verbose: Optional[bool] = True,
+    verbose: Optional[bool] = False,
 ) -> float:
     """Returns the input signal that is received at timestep t+1 per node."""
 
