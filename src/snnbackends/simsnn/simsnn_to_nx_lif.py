@@ -133,7 +133,7 @@ def get_a_in_next_from_sim_snn(
     node_name: str,
     nx_snn: nx.DiGraph,
     t: int,
-    verbose: Optional[bool] = False,
+    verbose: Optional[bool] = True,
 ) -> float:
     """Returns the input signal that is received at timestep t+1 per node."""
 
@@ -158,11 +158,17 @@ def get_a_in_next_from_sim_snn(
             and nx_snn.nodes[synapse.pre.name]["nx_lif"][t].spikes
         ):
             if verbose:
-                print(f"{t} {synapse.pre.name}->{node_name}: {synapse.w}")
+                if (
+                    "degree_receiver" in node_name
+                    # in ["degree_receiver_2_7_0", "degree_receiver_2_0_0"]
+                    or synapse.pre.name[:5] == "rand_"
+                ) and t == 0:
+                    print(f"{t} {synapse.pre.name}->{node_name}: {synapse.w}")
+
             incoming_spike_neurons.append(synapse.pre)
             a_in_next += synapse.w
 
-    if len(incoming_spike_neurons) > 0 and verbose:
+    if len(incoming_spike_neurons) > 0 and verbose and t == 0:
         print(f"a_in_next={a_in_next}\n")
     return a_in_next
 
