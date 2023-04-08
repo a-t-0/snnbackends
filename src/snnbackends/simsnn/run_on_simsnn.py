@@ -1,6 +1,5 @@
 """Manages a run on simsnn."""
 
-from typing import List
 
 from simsnn.core.simulators import Simulator
 from snncompare.run_config.Run_config import Run_config
@@ -78,19 +77,3 @@ def mdsa_is_done_on_simsnn(
     ):
         return True
     return False
-
-
-@typechecked
-def get_mdsa_neuron_indices_for_spike_raster(
-    *,
-    node_name_identifier: str,
-    snn: Simulator,
-) -> List[int]:
-    """Returns a list of integers to indicate the positions in which neurons of
-    a certain type are located in the spike raster."""
-    indices: List[int] = []
-    node_names: List[str] = list(map(lambda x: x.name, snn.network.nodes))
-    for index, node_name in enumerate(node_names):
-        if node_name_identifier in node_name:
-            indices.append(index)
-    return indices

@@ -13,31 +13,6 @@ from typeguard import typechecked
 
 
 @typechecked
-def results_nx_graphs_contain_expected_stages(
-    *,
-    results_nx_graphs: Dict,
-    stage_index: int,
-    expected_stages: Optional[List[int]] = None,
-) -> bool:
-    """Checks that the nx_graphs dict contains the expected completed stages in
-    each nxgraph.graph dict.
-
-    Throws an error otherwise.
-    """
-    for _, nx_graph in results_nx_graphs["graphs_dict"].items():
-        if expected_stages is None:
-            expected_stages = get_expected_stages(
-                stage_index=stage_index,
-            )
-        if not graph_contains_correct_stages(
-            snn=nx_graph,
-            expected_stages=expected_stages,
-        ):
-            return False
-    return True
-
-
-@typechecked
 def verify_results_nx_graphs_contain_expected_stages(
     *,
     results_nx_graphs: Dict,
