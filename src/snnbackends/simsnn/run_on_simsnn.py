@@ -1,6 +1,7 @@
 """Manages a run on simsnn."""
 
 
+from simsnn.core.nodes import LIF
 from simsnn.core.simulators import Simulator
 from snncompare.run_config.Run_config import Run_config
 from typeguard import typechecked
@@ -63,8 +64,9 @@ def mdsa_is_done_on_simsnn(
 
     # If the terminator node spikes, the network is done.
     for node in snn.network.nodes:
-        if "terminator" in node.name and node.out > 0:
-            return True
+        if isinstance(node, LIF):
+            if "terminator" in node.name and node.out > 0:
+                return True
 
     # If the selector or next_round neurons still spike the snn is not done.
     if (
