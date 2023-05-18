@@ -62,19 +62,18 @@ def mdsa_is_done_on_simsnn(
     snn: Simulator,
     t: int,
 ) -> bool:
-    """Returns True if the MDSA snn is done, False otherwise."""
+    """Returns True if the MDSA snn is done, False otherwise.
 
-    # If the terminator node spikes, the network is done.
-    for node in snn.network.nodes:
-        if isinstance(node, LIF):
-            if "terminator" in node.name and node.out > 0:
-                return True
+    TODO: https://github.com/a-t-0/snncompare/issues/195
+    """
 
-    # If the selector or next_round neurons still spike the snn is not done.
+    # Get the non RandomSpiker neurons. (Get the normal neurons).
     non_random_nodes: List[LIF] = []
     for node in snn.network.nodes:
         if isinstance(node, LIF):
             non_random_nodes.append(node)
+
+    # Check if any of the selector or next round neurons still spike.
     if (
         not any(
             neuron_identifier in node.name and node.out > 0
@@ -83,5 +82,25 @@ def mdsa_is_done_on_simsnn(
         )
         and t > 0
     ):
+        return True
+
+    # if all_terminator_nodes_have_spiked(snn=snn):
+    # return True
+    return False
+
+
+@typechecked
+def all_terminator_nodes_have_spiked(
+    snn: Simulator,
+) -> bool:
+    """Returns True if all terminator neurons have spiked."""
+    # Count nr of terminators
+    terminator_nodes: List = []
+    for node in snn.network.nodes:
+        if isinstance(node, LIF):
+            if "terminator" in node.name:
+                terminator_nodes.append(node)
+
+    if all(node.out > 0 for node in terminator_nodes):
         return True
     return False
