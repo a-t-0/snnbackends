@@ -37,11 +37,12 @@ def simsnn_graph_to_nx_lif_graph(
     # Create nx_lif synapses.
 
     for simsnn_synapse in simsnn.network.synapses:
+        # print(f'simsnn_synapse={__dict__}')
         nx_snn.add_edges_from(
             [
                 (
-                    simsnn_synapse.ID[0],
-                    simsnn_synapse.ID[1],
+                    simsnn_synapse.pre.name,
+                    simsnn_synapse.post.name,
                 )
             ],
             synapse=Synapse(
